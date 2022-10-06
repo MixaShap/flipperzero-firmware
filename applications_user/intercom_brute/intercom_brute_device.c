@@ -26,7 +26,6 @@
 static const char* protocol_came = "CAME";
 static const char* protocol_cham_code = "Cham_Code";
 static const char* protocol_linear = "Linear";
-static const char* protocol_nice_flo = "Nice FLO";
 static const char* protocol_princeton = "Princeton";
 static const char* protocol_raw = "RAW";
 
@@ -62,7 +61,7 @@ IntercomBruteDevice* intercom_brute_device_alloc() {
     instance->receiver = NULL;
     instance->environment = subghz_environment_alloc();
 
-    intercom_brute_device_attack_set_default_values(instance, IntercomBruteAttackCAME12bit307);
+    intercom_brute_device_attack_set_default_values(instance, IntercomBruteAttackLinear10bit300);
 
     return instance;
 }
@@ -293,16 +292,12 @@ IntercomBruteFileResult intercom_brute_device_attack_set(IntercomBruteDevice* in
         //            return file_result; // RETURN
         //        }
         break;
-    case IntercomBruteAttackCAME12bit303:
-    case IntercomBruteAttackCAME12bit307:
-    case IntercomBruteAttackCAME12bit433:
-    case IntercomBruteAttackCAME12bit868:
-        if(type == IntercomBruteAttackCAME12bit303) {
-            instance->frequency = 303875000;
-        } else if(type == IntercomBruteAttackCAME12bit307) {
+    case METAKOM_CYFRAL:
+    case METAKOM_1:
+    case CYFRAL_1:
+    case VIZIT_1:
+        if(type == IntercomBruteAttackLinear10bit300) {
             instance->frequency = 307800000;
-        } else if(type == IntercomBruteAttackCAME12bit433) {
-            instance->frequency = 433920000;
         } else /* ALWAYS TRUE if(type == IntercomBruteAttackCAME12bit868) */ {
             instance->frequency = 868350000;
         }
@@ -310,16 +305,10 @@ IntercomBruteFileResult intercom_brute_device_attack_set(IntercomBruteDevice* in
         furi_string_set_str(instance->protocol_name, protocol_came);
         furi_string_set_str(instance->preset_name, preset_ook650_async);
         break;
-    case IntercomBruteAttackChamberlain9bit300:
-    case IntercomBruteAttackChamberlain9bit315:
-    case IntercomBruteAttackChamberlain9bit390:
-        if(type == IntercomBruteAttackChamberlain9bit300) {
-            instance->frequency = 300000000;
-        } else if(type == IntercomBruteAttackChamberlain9bit315) {
-            instance->frequency = 315000000;
-        } else /* ALWAYS TRUE if(type == IntercomBruteAttackChamberlain9bit390) */ {
-            instance->frequency = 390000000;
-        }
+    case VIZIT_2:
+    case LIFT:
+    case TOILET:
+        instance->frequency = 390000000;
         instance->bit = 9;
         furi_string_set_str(instance->protocol_name, protocol_cham_code);
         furi_string_set_str(instance->preset_name, preset_ook650_async);
@@ -334,18 +323,6 @@ IntercomBruteFileResult intercom_brute_device_attack_set(IntercomBruteDevice* in
         instance->frequency = 310000000;
         instance->bit = 10;
         furi_string_set_str(instance->protocol_name, protocol_linear);
-        furi_string_set_str(instance->preset_name, preset_ook650_async);
-        break;
-    case IntercomBruteAttackNICE12bit433:
-        instance->frequency = 433920000;
-        instance->bit = 12;
-        furi_string_set_str(instance->protocol_name, protocol_nice_flo);
-        furi_string_set_str(instance->preset_name, preset_ook650_async);
-        break;
-    case IntercomBruteAttackNICE12bit868:
-        instance->frequency = 868350000;
-        instance->bit = 12;
-        furi_string_set_str(instance->protocol_name, protocol_nice_flo);
         furi_string_set_str(instance->preset_name, preset_ook650_async);
         break;
     default:

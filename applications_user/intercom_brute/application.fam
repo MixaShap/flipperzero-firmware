@@ -1,6 +1,6 @@
 App(
     appid="intercom_brute",
-    name="125kHz Intercom Bruteforcer",
+    name="125kHz Intercom",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="intercom_brute_app",
     cdefines=["APP_INTERCOM_BRUTE"],

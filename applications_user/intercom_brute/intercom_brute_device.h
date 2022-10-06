@@ -17,14 +17,14 @@
 #define INTERCOM_BRUTE_PAYLOAD_SIZE 16
 
 typedef enum {
-    IntercomBruteAttackCAME12bit303,
-    IntercomBruteAttackCAME12bit307,
-    IntercomBruteAttackCAME12bit433,
-    IntercomBruteAttackCAME12bit868,
-    IntercomBruteAttackNICE12bit433,
-    IntercomBruteAttackNICE12bit868,
-    IntercomBruteAttackChamberlain9bit300,
-    IntercomBruteAttackChamberlain9bit315,
+    METAKOM_CYFRAL,
+    METAKOM_1,
+    CYFRAL_1,
+    VIZIT_1,
+    VIZIT_2,
+    ELTIS,
+    LIFT,
+    TOILET,
     IntercomBruteAttackChamberlain9bit390,
     IntercomBruteAttackLinear10bit300,
     IntercomBruteAttackLinear10bit310,
