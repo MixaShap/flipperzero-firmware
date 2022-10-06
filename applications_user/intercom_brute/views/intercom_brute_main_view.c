@@ -85,7 +85,7 @@ void intercom_brute_main_view_draw(Canvas* canvas, IntercomBruteMainViewModel* m
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_box(canvas, 0, 0, canvas_width(canvas), STATUS_BAR_Y_SHIFT);
     canvas_invert_color(canvas);
-    canvas_draw_str_aligned(canvas, 64, 3, AlignCenter, AlignTop, "Sub-GHz Bruteforcer");
+    canvas_draw_str_aligned(canvas, 64, 3, AlignCenter, AlignTop, "125kHz Intercom");
     canvas_invert_color(canvas);
 
     if(m->is_select_byte) {
