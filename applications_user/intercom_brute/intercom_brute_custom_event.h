@@ -5,25 +5,25 @@
 
 typedef enum {
     // Reserve first 100 events for button types and indexes, starting from 0
-    SubBruteCustomEventTypeReserved = 100,
+    IntercomBruteCustomEventTypeReserved = 100,
 
-    SubBruteCustomEventTypeBackPressed,
-    SubBruteCustomEventTypeIndexSelected,
-    SubBruteCustomEventTypeTransmitStarted,
-    SubBruteCustomEventTypeTransmitContinuousStarted,
-    SubBruteCustomEventTypeTransmitFinished,
-    SubBruteCustomEventTypeTransmitNotStarted,
-    SubBruteCustomEventTypeTransmitCustom,
-    SubBruteCustomEventTypeSaveFile,
-    SubBruteCustomEventTypeUpdateView,
-    SubBruteCustomEventTypeChangeStepUp,
-    SubBruteCustomEventTypeChangeStepDown,
-    SubBruteCustomEventTypeChangeStepUpMore,
-    SubBruteCustomEventTypeChangeStepDownMore,
+    IntercomBruteCustomEventTypeBackPressed,
+    IntercomBruteCustomEventTypeIndexSelected,
+    IntercomBruteCustomEventTypeTransmitStarted,
+    IntercomBruteCustomEventTypeTransmitContinuousStarted,
+    IntercomBruteCustomEventTypeTransmitFinished,
+    IntercomBruteCustomEventTypeTransmitNotStarted,
+    IntercomBruteCustomEventTypeTransmitCustom,
+    IntercomBruteCustomEventTypeSaveFile,
+    IntercomBruteCustomEventTypeUpdateView,
+    IntercomBruteCustomEventTypeChangeStepUp,
+    IntercomBruteCustomEventTypeChangeStepDown,
+    IntercomBruteCustomEventTypeChangeStepUpMore,
+    IntercomBruteCustomEventTypeChangeStepDownMore,
 
-    SubBruteCustomEventTypeMenuSelected,
-    SubBruteCustomEventTypeTextEditDone,
-    SubBruteCustomEventTypePopupClosed,
+    IntercomBruteCustomEventTypeMenuSelected,
+    IntercomBruteCustomEventTypeTextEditDone,
+    IntercomBruteCustomEventTypePopupClosed,
 
-    SubBruteCustomEventTypeLoadFile,
-} SubBruteCustomEvent;
+    IntercomBruteCustomEventTypeLoadFile,
+} IntercomBruteCustomEvent;

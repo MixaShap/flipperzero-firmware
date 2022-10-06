@@ -3,14 +3,14 @@
 #include <gui/modules/validators.h>
 #include <lib/toolbox/path.h>
 
-#include "../subbrute_i.h"
-#include "../subbrute_custom_event.h"
+#include "../intercom_brute_i.h"
+#include "../intercom_brute_custom_event.h"
 
-#define TAG "SubBruteSceneSaveFile"
+#define TAG "IntercomBruteSceneSaveFile"
 
-void subbrute_scene_save_name_on_enter(void* context) {
-    SubBruteState* instance = (SubBruteState*)context;
-    SubBruteDevice* device = instance->device;
+void intercom_brute_scene_save_name_on_enter(void* context) {
+    IntercomBruteState* instance = (IntercomBruteState*)context;
+    IntercomBruteDevice* device = instance->device;
 
     // Setup view
     TextInput* text_input = instance->text_input;
@@ -19,23 +19,23 @@ void subbrute_scene_save_name_on_enter(void* context) {
     text_input_set_header_text(text_input, "Name of file");
     text_input_set_result_callback(
         text_input,
-        subbrute_text_input_callback,
+        intercom_brute_text_input_callback,
         instance,
         device->text_store,
-        SUBBRUTE_MAX_LEN_NAME,
+        INTERCOM_BRUTE_MAX_LEN_NAME,
         true);
 
-    furi_string_set(device->load_path, SUBBRUTE_PATH);
+    furi_string_set(device->load_path, INTERCOM_BRUTE_PATH);
 
     ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
-        furi_string_get_cstr(device->load_path), SUBBRUTE_FILE_EXT, "");
+        furi_string_get_cstr(device->load_path), INTERCOM_BRUTE_FILE_EXT, "");
     text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
 
-    view_dispatcher_switch_to_view(instance->view_dispatcher, SubBruteViewTextInput);
+    view_dispatcher_switch_to_view(instance->view_dispatcher, IntercomBruteViewTextInput);
 }
 
-bool subbrute_scene_save_name_on_event(void* context, SceneManagerEvent event) {
-    SubBruteState* instance = (SubBruteState*)context;
+bool intercom_brute_scene_save_name_on_event(void* context, SceneManagerEvent event) {
+    IntercomBruteState* instance = (IntercomBruteState*)context;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeBack) {
@@ -43,7 +43,7 @@ bool subbrute_scene_save_name_on_event(void* context, SceneManagerEvent event) {
         return true;
     } else if(
         event.type == SceneManagerEventTypeCustom &&
-        event.event == SubBruteCustomEventTypeTextEditDone) {
+        event.event == IntercomBruteCustomEventTypeTextEditDone) {
 #ifdef FURI_DEBUG
         FURI_LOG_D(TAG, "Saving: %s", instance->device->text_store);
 #endif
@@ -53,11 +53,11 @@ bool subbrute_scene_save_name_on_event(void* context, SceneManagerEvent event) {
                 instance->device->load_path,
                 "/%s%s",
                 instance->device->text_store,
-                SUBBRUTE_FILE_EXT);
+                INTERCOM_BRUTE_FILE_EXT);
 
-            if(subbrute_device_save_file(
+            if(intercom_brute_device_save_file(
                    instance->device, furi_string_get_cstr(instance->device->load_path))) {
-                scene_manager_next_scene(instance->scene_manager, SubBruteSceneSaveSuccess);
+                scene_manager_next_scene(instance->scene_manager, IntercomBruteSceneSaveSuccess);
                 success = true;
                 consumed = true;
             }
@@ -66,14 +66,14 @@ bool subbrute_scene_save_name_on_event(void* context, SceneManagerEvent event) {
         if(!success) {
             dialog_message_show_storage_error(instance->dialogs, "Error during saving!");
             consumed = scene_manager_search_and_switch_to_previous_scene(
-                instance->scene_manager, SubBruteSceneSetupAttack);
+                instance->scene_manager, IntercomBruteSceneSetupAttack);
         }
     }
     return consumed;
 }
 
-void subbrute_scene_save_name_on_exit(void* context) {
-    SubBruteState* instance = (SubBruteState*)context;
+void intercom_brute_scene_save_name_on_exit(void* context) {
+    IntercomBruteState* instance = (IntercomBruteState*)context;
 
     // Clear view
     void* validator_context = text_input_get_validator_callback_context(instance->text_input);

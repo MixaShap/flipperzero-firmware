@@ -13,13 +13,13 @@
 
 #include <dialogs/dialogs.h>
 
-#include "subbrute.h"
-#include "subbrute_i.h"
-#include "subbrute_custom_event.h"
+#include "intercom_brute.h"
+#include "intercom_brute_i.h"
+#include "intercom_brute_custom_event.h"
 
-#define TAG "SubBruteApp"
+#define TAG "IntercomBruteApp"
 
-static const char* subbrute_menu_names[] = {
+static const char* intercom_brute_menu_names[] = {
     [METAKOM_CYFRAL] = "METAKOM_CYFRAL",
     [METAKOM_1] = "METAKOM_1",
     [CYFRAL_1] = "CYFRAL_1",
@@ -28,14 +28,14 @@ static const char* subbrute_menu_names[] = {
     [ELTIS] = "ELTIS",
     [LIFT] = "LIFT",
     [TOILET] = "TOILET",
-    [SubBruteAttackChamberlain9bit390] = "UNUSED",
-    [SubBruteAttackLinear10bit300] = "UNUSED",
-    [SubBruteAttackLinear10bit310] = "UNUSED",
-    [SubBruteAttackLoadFile] = "EXISTING",
-    [SubBruteAttackTotalCount] = "Total Count",
+    [IntercomBruteAttackChamberlain9bit390] = "UNUSED",
+    [IntercomBruteAttackLinear10bit300] = "UNUSED",
+    [IntercomBruteAttackLinear10bit310] = "UNUSED",
+    [IntercomBruteAttackLoadFile] = "EXISTING",
+    [IntercomBruteAttackTotalCount] = "Total Count",
 };
 
-static const char* subbrute_menu_names_small[] = {
+static const char* intercom_brute_menu_names_small[] = {
     [METAKOM_CYFRAL] = "METAKOM_CYFRAL",
     [METAKOM_1] = "METAKOM_1",
     [CYFRAL_1] = "CYFRAL_1",
@@ -44,35 +44,35 @@ static const char* subbrute_menu_names_small[] = {
     [ELTIS] = "ELTIS",
     [LIFT] = "LIFT",
     [TOILET] = "TOILET",
-    [SubBruteAttackChamberlain9bit390] = "UNUSED",
-    [SubBruteAttackLinear10bit300] = "UNUSED",
-    [SubBruteAttackLinear10bit310] = "UNUSED",
-    [SubBruteAttackLoadFile] = "EXISTING",
-    [SubBruteAttackTotalCount] = "Total Count",
+    [IntercomBruteAttackChamberlain9bit390] = "UNUSED",
+    [IntercomBruteAttackLinear10bit300] = "UNUSED",
+    [IntercomBruteAttackLinear10bit310] = "UNUSED",
+    [IntercomBruteAttackLoadFile] = "EXISTING",
+    [IntercomBruteAttackTotalCount] = "Total Count",
 };
 
-static bool subbrute_custom_event_callback(void* context, uint32_t event) {
+static bool intercom_brute_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
-    SubBruteState* instance = context;
+    IntercomBruteState* instance = context;
     return scene_manager_handle_custom_event(instance->scene_manager, event);
 }
 
-static bool subbrute_back_event_callback(void* context) {
+static bool intercom_brute_back_event_callback(void* context) {
     furi_assert(context);
-    SubBruteState* instance = context;
+    IntercomBruteState* instance = context;
     return scene_manager_handle_back_event(instance->scene_manager);
 }
 
-static void subbrute_tick_event_callback(void* context) {
+static void intercom_brute_tick_event_callback(void* context) {
     furi_assert(context);
-    SubBruteState* instance = context;
+    IntercomBruteState* instance = context;
     scene_manager_handle_tick_event(instance->scene_manager);
 }
 
-SubBruteState* subbrute_alloc() {
-    SubBruteState* instance = malloc(sizeof(SubBruteState));
+IntercomBruteState* intercom_brute_alloc() {
+    IntercomBruteState* instance = malloc(sizeof(IntercomBruteState));
 
-    instance->scene_manager = scene_manager_alloc(&subbrute_scene_handlers, instance);
+    instance->scene_manager = scene_manager_alloc(&intercom_brute_scene_handlers, instance);
     instance->view_dispatcher = view_dispatcher_alloc();
 
     instance->gui = furi_record_open(RECORD_GUI);
@@ -80,11 +80,11 @@ SubBruteState* subbrute_alloc() {
     view_dispatcher_enable_queue(instance->view_dispatcher);
     view_dispatcher_set_event_callback_context(instance->view_dispatcher, instance);
     view_dispatcher_set_custom_event_callback(
-        instance->view_dispatcher, subbrute_custom_event_callback);
+        instance->view_dispatcher, intercom_brute_custom_event_callback);
     view_dispatcher_set_navigation_event_callback(
-        instance->view_dispatcher, subbrute_back_event_callback);
+        instance->view_dispatcher, intercom_brute_back_event_callback);
     view_dispatcher_set_tick_event_callback(
-        instance->view_dispatcher, subbrute_tick_event_callback, 10);
+        instance->view_dispatcher, intercom_brute_tick_event_callback, 10);
 
     //Dialog
     instance->dialogs = furi_record_open(RECORD_DIALOGS);
@@ -93,46 +93,46 @@ SubBruteState* subbrute_alloc() {
     instance->notifications = furi_record_open(RECORD_NOTIFICATION);
 
     // Devices
-    instance->device = subbrute_device_alloc();
+    instance->device = intercom_brute_device_alloc();
 
     // Worker
-    instance->worker = subbrute_worker_alloc();
+    instance->worker = intercom_brute_worker_alloc();
 
     // TextInput
     instance->text_input = text_input_alloc();
     view_dispatcher_add_view(
         instance->view_dispatcher,
-        SubBruteViewTextInput,
+        IntercomBruteViewTextInput,
         text_input_get_view(instance->text_input));
 
     // Custom Widget
     instance->widget = widget_alloc();
     view_dispatcher_add_view(
-        instance->view_dispatcher, SubBruteViewWidget, widget_get_view(instance->widget));
+        instance->view_dispatcher, IntercomBruteViewWidget, widget_get_view(instance->widget));
 
     // Popup
     instance->popup = popup_alloc();
     view_dispatcher_add_view(
-        instance->view_dispatcher, SubBruteViewPopup, popup_get_view(instance->popup));
+        instance->view_dispatcher, IntercomBruteViewPopup, popup_get_view(instance->popup));
 
     // ViewStack
     instance->view_stack = view_stack_alloc();
     view_dispatcher_add_view(
-        instance->view_dispatcher, SubBruteViewStack, view_stack_get_view(instance->view_stack));
+        instance->view_dispatcher, IntercomBruteViewStack, view_stack_get_view(instance->view_stack));
 
-    // SubBruteMainView
-    instance->view_main = subbrute_main_view_alloc();
+    // IntercomBruteMainView
+    instance->view_main = intercom_brute_main_view_alloc();
     view_dispatcher_add_view(
         instance->view_dispatcher,
-        SubBruteViewMain,
-        subbrute_main_view_get_view(instance->view_main));
+        IntercomBruteViewMain,
+        intercom_brute_main_view_get_view(instance->view_main));
 
-    // SubBruteAttackView
-    instance->view_attack = subbrute_attack_view_alloc();
+    // IntercomBruteAttackView
+    instance->view_attack = intercom_brute_attack_view_alloc();
     view_dispatcher_add_view(
         instance->view_dispatcher,
-        SubBruteViewAttack,
-        subbrute_attack_view_get_view(instance->view_attack));
+        IntercomBruteViewAttack,
+        intercom_brute_attack_view_get_view(instance->view_attack));
 
     // Loading
     instance->loading = loading_alloc();
@@ -142,21 +142,21 @@ SubBruteState* subbrute_alloc() {
     return instance;
 }
 
-void subbrute_free(SubBruteState* instance) {
+void intercom_brute_free(IntercomBruteState* instance) {
     furi_assert(instance);
 
-    // SubBruteWorker
+    // IntercomBruteWorker
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free SubBruteDevice");
+    FURI_LOG_D(TAG, "free IntercomBruteDevice");
 #endif
-    subbrute_worker_stop(instance->worker);
-    subbrute_worker_free(instance->worker);
+    intercom_brute_worker_stop(instance->worker);
+    intercom_brute_worker_free(instance->worker);
 
-    // SubBruteDevice
+    // IntercomBruteDevice
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free SubBruteDevice");
+    FURI_LOG_D(TAG, "free IntercomBruteDevice");
 #endif
-    subbrute_device_free(instance->device);
+    intercom_brute_device_free(instance->device);
 
     // Notifications
 #ifdef FURI_DEBUG
@@ -174,44 +174,44 @@ void subbrute_free(SubBruteState* instance) {
 
     // View Main
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free SubBruteViewMain");
+    FURI_LOG_D(TAG, "free IntercomBruteViewMain");
 #endif
-    view_dispatcher_remove_view(instance->view_dispatcher, SubBruteViewMain);
-    subbrute_main_view_free(instance->view_main);
+    view_dispatcher_remove_view(instance->view_dispatcher, IntercomBruteViewMain);
+    intercom_brute_main_view_free(instance->view_main);
 
     // View Attack
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free SubBruteViewAttack");
+    FURI_LOG_D(TAG, "free IntercomBruteViewAttack");
 #endif
-    view_dispatcher_remove_view(instance->view_dispatcher, SubBruteViewAttack);
-    subbrute_attack_view_free(instance->view_attack);
+    view_dispatcher_remove_view(instance->view_dispatcher, IntercomBruteViewAttack);
+    intercom_brute_attack_view_free(instance->view_attack);
 
     // TextInput
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free SubBruteViewTextInput");
+    FURI_LOG_D(TAG, "free IntercomBruteViewTextInput");
 #endif
-    view_dispatcher_remove_view(instance->view_dispatcher, SubBruteViewTextInput);
+    view_dispatcher_remove_view(instance->view_dispatcher, IntercomBruteViewTextInput);
     text_input_free(instance->text_input);
 
     // Custom Widget
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free SubBruteViewWidget");
+    FURI_LOG_D(TAG, "free IntercomBruteViewWidget");
 #endif
-    view_dispatcher_remove_view(instance->view_dispatcher, SubBruteViewWidget);
+    view_dispatcher_remove_view(instance->view_dispatcher, IntercomBruteViewWidget);
     widget_free(instance->widget);
 
     // Popup
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free SubBruteViewPopup");
+    FURI_LOG_D(TAG, "free IntercomBruteViewPopup");
 #endif
-    view_dispatcher_remove_view(instance->view_dispatcher, SubBruteViewPopup);
+    view_dispatcher_remove_view(instance->view_dispatcher, IntercomBruteViewPopup);
     popup_free(instance->popup);
 
     // ViewStack
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free SubBruteViewStack");
+    FURI_LOG_D(TAG, "free IntercomBruteViewStack");
 #endif
-    view_dispatcher_remove_view(instance->view_dispatcher, SubBruteViewStack);
+    view_dispatcher_remove_view(instance->view_dispatcher, IntercomBruteViewStack);
     view_stack_free(instance->view_stack);
 
     //Dialog
@@ -247,9 +247,9 @@ void subbrute_free(SubBruteState* instance) {
     free(instance);
 }
 
-void subbrute_show_loading_popup(void* context, bool show) {
+void intercom_brute_show_loading_popup(void* context, bool show) {
     TaskHandle_t timer_task = xTaskGetHandle(configTIMER_SERVICE_TASK_NAME);
-    SubBruteState* instance = context;
+    IntercomBruteState* instance = context;
     ViewStack* view_stack = instance->view_stack;
     Loading* loading = instance->loading;
 
@@ -264,46 +264,46 @@ void subbrute_show_loading_popup(void* context, bool show) {
     }
 }
 
-void subbrute_text_input_callback(void* context) {
+void intercom_brute_text_input_callback(void* context) {
     furi_assert(context);
-    SubBruteState* instance = context;
+    IntercomBruteState* instance = context;
     view_dispatcher_send_custom_event(
-        instance->view_dispatcher, SubBruteCustomEventTypeTextEditDone);
+        instance->view_dispatcher, IntercomBruteCustomEventTypeTextEditDone);
 }
 
-void subbrute_popup_closed_callback(void* context) {
+void intercom_brute_popup_closed_callback(void* context) {
     furi_assert(context);
-    SubBruteState* instance = context;
+    IntercomBruteState* instance = context;
     view_dispatcher_send_custom_event(
-        instance->view_dispatcher, SubBruteCustomEventTypePopupClosed);
+        instance->view_dispatcher, IntercomBruteCustomEventTypePopupClosed);
 }
 
-const char* subbrute_get_menu_name(SubBruteAttacks index) {
-    furi_assert(index < SubBruteAttackTotalCount);
+const char* intercom_brute_get_menu_name(IntercomBruteAttacks index) {
+    furi_assert(index < IntercomBruteAttackTotalCount);
 
-    return subbrute_menu_names[index];
+    return intercom_brute_menu_names[index];
 }
 
-const char* subbrute_get_small_menu_name(SubBruteAttacks index) {
-    furi_assert(index < SubBruteAttackTotalCount);
+const char* intercom_brute_get_small_menu_name(IntercomBruteAttacks index) {
+    furi_assert(index < IntercomBruteAttackTotalCount);
 
-    return subbrute_menu_names_small[index];
+    return intercom_brute_menu_names_small[index];
 }
 
 // ENTRYPOINT
-int32_t subbrute_app(void* p) {
+int32_t intercom_brute_app(void* p) {
     UNUSED(p);
 
-    SubBruteState* instance = subbrute_alloc();
+    IntercomBruteState* instance = intercom_brute_alloc();
     view_dispatcher_attach_to_gui(
         instance->view_dispatcher, instance->gui, ViewDispatcherTypeFullscreen);
-    scene_manager_next_scene(instance->scene_manager, SubBruteSceneStart);
+    scene_manager_next_scene(instance->scene_manager, IntercomBruteSceneStart);
 
     furi_hal_power_suppress_charge_enter();
     notification_message(instance->notifications, &sequence_display_backlight_on);
     view_dispatcher_run(instance->view_dispatcher);
     furi_hal_power_suppress_charge_exit();
-    subbrute_free(instance);
+    intercom_brute_free(instance);
 
     return 0;
 }

@@ -8,57 +8,57 @@
 #include <lib/subghz/receiver.h>
 #include <lib/subghz/environment.h>
 
-#define SUBBRUTE_TEXT_STORE_SIZE 256
+#define INTERCOM_BRUTE_TEXT_STORE_SIZE 256
 
-#define SUBBRUTE_MAX_LEN_NAME 64
-#define SUBBRUTE_PATH EXT_PATH("subghz")
-#define SUBBRUTE_FILE_EXT ".sub"
+#define INTERCOM_BRUTE_MAX_LEN_NAME 64
+#define INTERCOM_BRUTE_PATH EXT_PATH("subghz")
+#define INTERCOM_BRUTE_FILE_EXT ".sub"
 
-#define SUBBRUTE_PAYLOAD_SIZE 16
-
-typedef enum {
-    SubBruteAttackCAME12bit303,
-    SubBruteAttackCAME12bit307,
-    SubBruteAttackCAME12bit433,
-    SubBruteAttackCAME12bit868,
-    SubBruteAttackNICE12bit433,
-    SubBruteAttackNICE12bit868,
-    SubBruteAttackChamberlain9bit300,
-    SubBruteAttackChamberlain9bit315,
-    SubBruteAttackChamberlain9bit390,
-    SubBruteAttackLinear10bit300,
-    SubBruteAttackLinear10bit310,
-    SubBruteAttackLoadFile,
-    SubBruteAttackTotalCount,
-} SubBruteAttacks;
+#define INTERCOM_BRUTE_PAYLOAD_SIZE 16
 
 typedef enum {
-    SubBruteFileResultUnknown,
-    SubBruteFileResultOk,
-    SubBruteFileResultErrorOpenFile,
-    SubBruteFileResultMissingOrIncorrectHeader,
-    SubBruteFileResultFrequencyNotAllowed,
-    SubBruteFileResultMissingOrIncorrectFrequency,
-    SubBruteFileResultPresetInvalid,
-    SubBruteFileResultMissingProtocol,
-    SubBruteFileResultProtocolNotSupported,
-    SubBruteFileResultDynamicProtocolNotValid,
-    SubBruteFileResultProtocolNotFound,
-    SubBruteFileResultMissingOrIncorrectBit,
-    SubBruteFileResultMissingOrIncorrectKey,
-    SubBruteFileResultMissingOrIncorrectTe,
-    SubBruteFileResultBigBitSize,
-} SubBruteFileResult;
+    IntercomBruteAttackCAME12bit303,
+    IntercomBruteAttackCAME12bit307,
+    IntercomBruteAttackCAME12bit433,
+    IntercomBruteAttackCAME12bit868,
+    IntercomBruteAttackNICE12bit433,
+    IntercomBruteAttackNICE12bit868,
+    IntercomBruteAttackChamberlain9bit300,
+    IntercomBruteAttackChamberlain9bit315,
+    IntercomBruteAttackChamberlain9bit390,
+    IntercomBruteAttackLinear10bit300,
+    IntercomBruteAttackLinear10bit310,
+    IntercomBruteAttackLoadFile,
+    IntercomBruteAttackTotalCount,
+} IntercomBruteAttacks;
 
 typedef enum {
-    SubBruteDeviceStateIDLE,
-    SubBruteDeviceStateReady,
-    SubBruteDeviceStateTx,
-    SubBruteDeviceStateFinished,
-} SubBruteDeviceState;
+    IntercomBruteFileResultUnknown,
+    IntercomBruteFileResultOk,
+    IntercomBruteFileResultErrorOpenFile,
+    IntercomBruteFileResultMissingOrIncorrectHeader,
+    IntercomBruteFileResultFrequencyNotAllowed,
+    IntercomBruteFileResultMissingOrIncorrectFrequency,
+    IntercomBruteFileResultPresetInvalid,
+    IntercomBruteFileResultMissingProtocol,
+    IntercomBruteFileResultProtocolNotSupported,
+    IntercomBruteFileResultDynamicProtocolNotValid,
+    IntercomBruteFileResultProtocolNotFound,
+    IntercomBruteFileResultMissingOrIncorrectBit,
+    IntercomBruteFileResultMissingOrIncorrectKey,
+    IntercomBruteFileResultMissingOrIncorrectTe,
+    IntercomBruteFileResultBigBitSize,
+} IntercomBruteFileResult;
+
+typedef enum {
+    IntercomBruteDeviceStateIDLE,
+    IntercomBruteDeviceStateReady,
+    IntercomBruteDeviceStateTx,
+    IntercomBruteDeviceStateFinished,
+} IntercomBruteDeviceState;
 
 typedef struct {
-    SubBruteDeviceState state;
+    IntercomBruteDeviceState state;
 
     // Current step
     uint64_t key_index;
@@ -71,10 +71,10 @@ typedef struct {
     SubGhzEnvironment* environment;
 
     // Attack state
-    SubBruteAttacks attack;
-    char file_template[SUBBRUTE_TEXT_STORE_SIZE];
+    IntercomBruteAttacks attack;
+    char file_template[INTERCOM_BRUTE_TEXT_STORE_SIZE];
     bool has_tail;
-    char payload[SUBBRUTE_TEXT_STORE_SIZE * 2];
+    char payload[INTERCOM_BRUTE_TEXT_STORE_SIZE * 2];
     uint64_t max_value;
 
     // Loaded info for attack type
@@ -84,21 +84,21 @@ typedef struct {
     uint32_t frequency;
     uint32_t repeat;
     uint32_t bit;
-    char current_key[SUBBRUTE_PAYLOAD_SIZE];
+    char current_key[INTERCOM_BRUTE_PAYLOAD_SIZE];
     uint32_t te;
 
-    char file_key[SUBBRUTE_MAX_LEN_NAME];
-    char text_store[SUBBRUTE_PAYLOAD_SIZE];
-} SubBruteDevice;
+    char file_key[INTERCOM_BRUTE_MAX_LEN_NAME];
+    char text_store[INTERCOM_BRUTE_PAYLOAD_SIZE];
+} IntercomBruteDevice;
 
-SubBruteDevice* subbrute_device_alloc();
-void subbrute_device_free(SubBruteDevice* instance);
-bool subbrute_device_save_file(SubBruteDevice* instance, const char* key_name);
-const char* subbrute_device_error_get_desc(SubBruteFileResult error_id);
-bool subbrute_device_create_packet_parsed(SubBruteDevice* context, uint64_t step, bool small);
-SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* context, SubBruteAttacks type);
-uint8_t subbrute_device_load_from_file(SubBruteDevice* context, FuriString* file_path);
-FuriHalSubGhzPreset subbrute_device_convert_preset(const char* preset);
-void subbrute_device_attack_set_default_values(
-    SubBruteDevice* context,
-    SubBruteAttacks default_attack);
+IntercomBruteDevice* intercom_brute_device_alloc();
+void intercom_brute_device_free(IntercomBruteDevice* instance);
+bool intercom_brute_device_save_file(IntercomBruteDevice* instance, const char* key_name);
+const char* intercom_brute_device_error_get_desc(IntercomBruteFileResult error_id);
+bool intercom_brute_device_create_packet_parsed(IntercomBruteDevice* context, uint64_t step, bool small);
+IntercomBruteFileResult intercom_brute_device_attack_set(IntercomBruteDevice* context, IntercomBruteAttacks type);
+uint8_t intercom_brute_device_load_from_file(IntercomBruteDevice* context, FuriString* file_path);
+FuriHalSubGhzPreset intercom_brute_device_convert_preset(const char* preset);
+void intercom_brute_device_attack_set_default_values(
+    IntercomBruteDevice* context,
+    IntercomBruteAttacks default_attack);

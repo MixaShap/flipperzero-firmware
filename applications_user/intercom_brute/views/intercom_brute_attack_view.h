@@ -6,22 +6,22 @@
 #include <gui/elements.h>
 #include <gui/icon.h>
 #include <subghz/types.h>
-#include "../subbrute_custom_event.h"
+#include "../intercom_brute_custom_event.h"
 
-typedef void (*SubBruteAttackViewCallback)(SubBruteCustomEvent event, void* context);
-typedef struct SubBruteAttackView SubBruteAttackView;
+typedef void (*IntercomBruteAttackViewCallback)(IntercomBruteCustomEvent event, void* context);
+typedef struct IntercomBruteAttackView IntercomBruteAttackView;
 
-void subbrute_attack_view_set_callback(
-    SubBruteAttackView* instance,
-    SubBruteAttackViewCallback callback,
+void intercom_brute_attack_view_set_callback(
+    IntercomBruteAttackView* instance,
+    IntercomBruteAttackViewCallback callback,
     void* context);
-SubBruteAttackView* subbrute_attack_view_alloc();
-void subbrute_attack_view_free(SubBruteAttackView* instance);
-View* subbrute_attack_view_get_view(SubBruteAttackView* instance);
-void subbrute_attack_view_set_current_step(SubBruteAttackView* instance, uint64_t current_step);
-void subbrute_attack_view_set_worker_type(SubBruteAttackView* instance, bool is_continuous_worker);
-void subbrute_attack_view_init_values(
-    SubBruteAttackView* instance,
+IntercomBruteAttackView* intercom_brute_attack_view_alloc();
+void intercom_brute_attack_view_free(IntercomBruteAttackView* instance);
+View* intercom_brute_attack_view_get_view(IntercomBruteAttackView* instance);
+void intercom_brute_attack_view_set_current_step(IntercomBruteAttackView* instance, uint64_t current_step);
+void intercom_brute_attack_view_set_worker_type(IntercomBruteAttackView* instance, bool is_continuous_worker);
+void intercom_brute_attack_view_init_values(
+    IntercomBruteAttackView* instance,
     uint8_t index,
     uint64_t max_value,
     uint64_t current_step,

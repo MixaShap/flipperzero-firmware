@@ -29,25 +29,25 @@
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
 
-#include "subbrute_device.h"
-#include "helpers/subbrute_worker.h"
-#include "subbrute.h"
-#include "scenes/subbrute_scene.h"
-#include "views/subbrute_attack_view.h"
-#include "views/subbrute_main_view.h"
+#include "intercom_brute_device.h"
+#include "helpers/intercom_brute_worker.h"
+#include "intercom_brute.h"
+#include "scenes/intercom_brute_scene.h"
+#include "views/intercom_brute_attack_view.h"
+#include "views/intercom_brute_main_view.h"
 
 typedef enum {
-    SubBruteViewNone,
-    SubBruteViewMain,
-    SubBruteViewAttack,
-    SubBruteViewTextInput,
-    SubBruteViewDialogEx,
-    SubBruteViewPopup,
-    SubBruteViewWidget,
-    SubBruteViewStack,
-} SubBruteView;
+    IntercomBruteViewNone,
+    IntercomBruteViewMain,
+    IntercomBruteViewAttack,
+    IntercomBruteViewTextInput,
+    IntercomBruteViewDialogEx,
+    IntercomBruteViewPopup,
+    IntercomBruteViewWidget,
+    IntercomBruteViewStack,
+} IntercomBruteView;
 
-struct SubBruteState {
+struct IntercomBruteState {
     // GUI elements
     NotificationApp* notifications;
     Gui* gui;
@@ -60,23 +60,23 @@ struct SubBruteState {
     Loading* loading;
 
     // Views
-    SubBruteMainView* view_main;
-    SubBruteAttackView* view_attack;
-    SubBruteView current_view;
+    IntercomBruteMainView* view_main;
+    IntercomBruteAttackView* view_attack;
+    IntercomBruteView current_view;
 
     // Scene
     SceneManager* scene_manager;
 
-    SubBruteDevice* device;
-    SubBruteWorker* worker;
+    IntercomBruteDevice* device;
+    IntercomBruteWorker* worker;
 
     //Menu stuff
     // TODO: Do we need it?
     uint8_t menu_index;
 };
 
-void subbrute_show_loading_popup(void* context, bool show);
-void subbrute_text_input_callback(void* context);
-void subbrute_popup_closed_callback(void* context);
-const char* subbrute_get_menu_name(uint8_t index);
-const char* subbrute_get_small_menu_name(uint8_t index);
+void intercom_brute_show_loading_popup(void* context, bool show);
+void intercom_brute_text_input_callback(void* context);
+void intercom_brute_popup_closed_callback(void* context);
+const char* intercom_brute_get_menu_name(uint8_t index);
+const char* intercom_brute_get_small_menu_name(uint8_t index);

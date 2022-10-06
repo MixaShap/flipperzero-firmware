@@ -1,13 +1,13 @@
-#include "subbrute_worker.h"
+#include "intercom_brute_worker.h"
 
 #include <subghz/environment.h>
 #include <subghz/transmitter.h>
 #include <flipper_format_i.h>
 #include <lib/subghz/subghz_tx_rx_worker.h>
 
-#define TAG "SubBruteWorker"
+#define TAG "IntercomBruteWorker"
 
-struct SubBruteWorker {
+struct IntercomBruteWorker {
     SubGhzTxRxWorker* subghz_txrx;
     volatile bool worker_running;
     volatile bool worker_manual_mode;
@@ -25,21 +25,21 @@ struct SubBruteWorker {
     uint32_t frequency;
     FuriString* protocol_name;
 
-    //SubBruteWorkerCallback callback;
+    //IntercomBruteWorkerCallback callback;
     //void* context;
 };
 
 /** Taken from subghz_tx_rx_worker.c */
-#define SUBBRUTE_TXRX_WORKER_BUF_SIZE 2048
-#define SUBBRUTE_TXRX_WORKER_MAX_TXRX_SIZE 60
-#define SUBBRUTE_TXRX_WORKER_TIMEOUT_READ_WRITE_BUF 40
-#define SUBBRUTE_TX_TIMEOUT 5
-#define SUBBRUTE_SEND_DELAY 20
+#define INTERCOM_BRUTE_TXRX_WORKER_BUF_SIZE 2048
+#define INTERCOM_BRUTE_TXRX_WORKER_MAX_TXRX_SIZE 60
+#define INTERCOM_BRUTE_TXRX_WORKER_TIMEOUT_READ_WRITE_BUF 40
+#define INTERCOM_BRUTE_TX_TIMEOUT 5
+#define INTERCOM_BRUTE_SEND_DELAY 20
 
-SubBruteWorker* subbrute_worker_alloc() {
-    SubBruteWorker* instance = malloc(sizeof(SubBruteWorker));
+IntercomBruteWorker* intercom_brute_worker_alloc() {
+    IntercomBruteWorker* instance = malloc(sizeof(IntercomBruteWorker));
 
-    //instance->status = SubBruteWorkerStatusIDLE;
+    //instance->status = IntercomBruteWorkerStatusIDLE;
     instance->worker_running = false;
     instance->worker_manual_mode = false;
 
@@ -55,7 +55,7 @@ SubBruteWorker* subbrute_worker_alloc() {
     return instance;
 }
 
-void subbrute_worker_free(SubBruteWorker* instance) {
+void intercom_brute_worker_free(IntercomBruteWorker* instance) {
     furi_assert(instance);
     furi_assert(!instance->worker_running);
 
@@ -79,8 +79,8 @@ void subbrute_worker_free(SubBruteWorker* instance) {
     free(instance);
 }
 
-bool subbrute_worker_start(
-    SubBruteWorker* instance,
+bool intercom_brute_worker_start(
+    IntercomBruteWorker* instance,
     uint32_t frequency,
     FuriHalSubGhzPreset preset,
     const char* protocol_name) {
@@ -123,7 +123,7 @@ bool subbrute_worker_start(
     return res;
 }
 
-void subbrute_worker_stop(SubBruteWorker* instance) {
+void intercom_brute_worker_stop(IntercomBruteWorker* instance) {
     furi_assert(instance);
 
     instance->worker_running = false;
@@ -133,31 +133,31 @@ void subbrute_worker_stop(SubBruteWorker* instance) {
     }
 }
 
-void subbrute_worker_set_continuous_worker(SubBruteWorker* instance, bool is_continuous_worker) {
+void intercom_brute_worker_set_continuous_worker(IntercomBruteWorker* instance, bool is_continuous_worker) {
     furi_assert(instance);
 
     instance->is_continuous_worker = is_continuous_worker;
 }
 
-bool subbrute_worker_get_continuous_worker(SubBruteWorker* instance) {
+bool intercom_brute_worker_get_continuous_worker(IntercomBruteWorker* instance) {
     furi_assert(instance);
 
     return instance->is_continuous_worker;
 }
 
-bool subbrute_worker_is_running(SubBruteWorker* instance) {
+bool intercom_brute_worker_is_running(IntercomBruteWorker* instance) {
     furi_assert(instance);
 
     return instance->worker_running;
 }
 
-bool subbrute_worker_can_transmit(SubBruteWorker* instance) {
+bool intercom_brute_worker_can_transmit(IntercomBruteWorker* instance) {
     furi_assert(instance);
 
-    return (furi_get_tick() - instance->last_time_tx_data) > SUBBRUTE_SEND_DELAY;
+    return (furi_get_tick() - instance->last_time_tx_data) > INTERCOM_BRUTE_SEND_DELAY;
 }
 
-bool subbrute_worker_can_manual_transmit(SubBruteWorker* instance, bool is_button_pressed) {
+bool intercom_brute_worker_can_manual_transmit(IntercomBruteWorker* instance, bool is_button_pressed) {
     furi_assert(instance);
 
     if(is_button_pressed) {
@@ -169,11 +169,11 @@ bool subbrute_worker_can_manual_transmit(SubBruteWorker* instance, bool is_butto
     }
 }
 
-bool subbrute_worker_transmit(SubBruteWorker* instance, const char* payload) {
+bool intercom_brute_worker_transmit(IntercomBruteWorker* instance, const char* payload) {
     furi_assert(instance);
     furi_assert(instance->worker_running);
 
-    if(!subbrute_worker_can_transmit(instance)) {
+    if(!intercom_brute_worker_can_transmit(instance)) {
         FURI_LOG_E(TAG, "Too early to transmit");
 
         return false;
@@ -198,19 +198,19 @@ bool subbrute_worker_transmit(SubBruteWorker* instance, const char* payload) {
 }
 
 // Init MANUAL
-bool subbrute_worker_init_manual_transmit(
-    SubBruteWorker* instance,
+bool intercom_brute_worker_init_manual_transmit(
+    IntercomBruteWorker* instance,
     uint32_t frequency,
     FuriHalSubGhzPreset preset,
     const char* protocol_name) {
 #ifdef FURI_DEBUG
     FURI_LOG_D(
         TAG,
-        "subbrute_worker_init_manual_transmit. frequency: %d, protocol: %s",
+        "intercom_brute_worker_init_manual_transmit. frequency: %d, protocol: %s",
         frequency,
         protocol_name);
 #endif
-    if(instance->worker_manual_mode || !subbrute_worker_can_manual_transmit(instance, false) ||
+    if(instance->worker_manual_mode || !intercom_brute_worker_can_manual_transmit(instance, false) ||
        instance->worker_running) {
 #ifdef FURI_DEBUG
         FURI_LOG_D(TAG, "cannot transmit");
@@ -219,9 +219,9 @@ bool subbrute_worker_init_manual_transmit(
     }
     if(instance->worker_running) {
 #ifdef FURI_DEBUG
-        FURI_LOG_D(TAG, "subbrute_worker_stop");
+        FURI_LOG_D(TAG, "intercom_brute_worker_stop");
 #endif
-        subbrute_worker_stop(instance);
+        intercom_brute_worker_stop(instance);
     }
 
     // Not transmit at this period
@@ -229,7 +229,7 @@ bool subbrute_worker_init_manual_transmit(
 
     if(instance->is_manual_init) {
         FURI_LOG_E(TAG, "Trying to setup without normally shutdown prev transmit session!");
-        subbrute_worker_manual_transmit_stop(instance);
+        intercom_brute_worker_manual_transmit_stop(instance);
     }
 
     instance->preset = preset;
@@ -275,9 +275,9 @@ bool subbrute_worker_init_manual_transmit(
     return true;
 }
 
-void subbrute_worker_manual_transmit_stop(SubBruteWorker* instance) {
+void intercom_brute_worker_manual_transmit_stop(IntercomBruteWorker* instance) {
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_worker_manual_transmit_stop");
+    FURI_LOG_D(TAG, "intercom_brute_worker_manual_transmit_stop");
 #endif
     if(!instance->is_manual_init) {
         return;
@@ -294,10 +294,10 @@ void subbrute_worker_manual_transmit_stop(SubBruteWorker* instance) {
     instance->is_manual_init = false;
 }
 
-bool subbrute_worker_manual_transmit(SubBruteWorker* instance, const char* payload) {
+bool intercom_brute_worker_manual_transmit(IntercomBruteWorker* instance, const char* payload) {
     furi_assert(instance);
 
-    if(instance->worker_manual_mode || !subbrute_worker_can_transmit(instance)) {
+    if(instance->worker_manual_mode || !intercom_brute_worker_can_transmit(instance)) {
 #ifdef FURI_DEBUG
         FURI_LOG_D(TAG, "cannot transmit");
 #endif
@@ -305,7 +305,7 @@ bool subbrute_worker_manual_transmit(SubBruteWorker* instance, const char* paylo
     }
     if(instance->worker_running) {
         FURI_LOG_W(TAG, "Worker was working for manual mode. Shutdown thread");
-        subbrute_worker_stop(instance);
+        intercom_brute_worker_stop(instance);
     }
     if(!instance->is_manual_init) {
         FURI_LOG_E(TAG, "Manually transmit doesn't set!");
@@ -329,7 +329,7 @@ bool subbrute_worker_manual_transmit(SubBruteWorker* instance, const char* paylo
     furi_hal_subghz_start_async_tx(subghz_transmitter_yield, instance->transmitter);
 
     while(!furi_hal_subghz_is_async_tx_complete()) {
-        furi_delay_ms(SUBBRUTE_TX_TIMEOUT);
+        furi_delay_ms(INTERCOM_BRUTE_TX_TIMEOUT);
     }
     furi_hal_subghz_stop_async_tx();
 

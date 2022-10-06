@@ -1,3 +1,3 @@
 #pragma once
 
-typedef struct SubBruteState SubBruteState;
+typedef struct IntercomBruteState IntercomBruteState;

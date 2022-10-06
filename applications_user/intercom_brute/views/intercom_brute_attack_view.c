@@ -1,5 +1,5 @@
-#include "subbrute_attack_view.h"
-#include "../subbrute_i.h"
+#include "intercom_brute_attack_view.h"
+#include "../intercom_brute_i.h"
 
 #include "assets_icons.h"
 #include <input/input.h>
@@ -7,26 +7,26 @@
 #include <gui/icon_i.h>
 #include <gui/icon_animation_i.h>
 
-#define TAG "SubBruteAttackView"
+#define TAG "IntercomBruteAttackView"
 
-struct SubBruteAttackView {
+struct IntercomBruteAttackView {
     View* view;
-    SubBruteAttackViewCallback callback;
+    IntercomBruteAttackViewCallback callback;
     void* context;
 };
 
 typedef struct {
-    SubBruteAttacks index;
+    IntercomBruteAttacks index;
     uint64_t max_value;
     uint64_t current_step;
     bool is_attacking;
     bool is_continuous_worker;
     IconAnimation* icon;
-} SubBruteAttackViewModel;
+} IntercomBruteAttackViewModel;
 
-void subbrute_attack_view_set_callback(
-    SubBruteAttackView* instance,
-    SubBruteAttackViewCallback callback,
+void intercom_brute_attack_view_set_callback(
+    IntercomBruteAttackView* instance,
+    IntercomBruteAttackViewCallback callback,
     void* context) {
     furi_assert(instance);
     furi_assert(callback);
@@ -35,18 +35,18 @@ void subbrute_attack_view_set_callback(
     instance->context = context;
 }
 
-bool subbrute_attack_view_input(InputEvent* event, void* context) {
+bool intercom_brute_attack_view_input(InputEvent* event, void* context) {
     furi_assert(event);
     furi_assert(context);
 #ifdef FURI_DEBUG
     FURI_LOG_D(TAG, "InputKey: %d", event->key);
 #endif
-    SubBruteAttackView* instance = context;
+    IntercomBruteAttackView* instance = context;
 
     if(event->key == InputKeyBack && event->type == InputTypeShort) {
-        instance->callback(SubBruteCustomEventTypeBackPressed, instance->context);
+        instance->callback(IntercomBruteCustomEventTypeBackPressed, instance->context);
         with_view_model(
-            instance->view, (SubBruteAttackViewModel * model) {
+            instance->view, (IntercomBruteAttackViewModel * model) {
                 model->is_attacking = false;
                 model->is_continuous_worker = false;
                 return true;
@@ -57,15 +57,15 @@ bool subbrute_attack_view_input(InputEvent* event, void* context) {
     bool is_attacking = false;
 
     with_view_model(
-        instance->view, (SubBruteAttackViewModel * model) {
+        instance->view, (IntercomBruteAttackViewModel * model) {
             is_attacking = model->is_attacking;
             return false;
         });
 
     //    if(!is_attacking) {
-    //        instance->callback(SubBruteCustomEventTypeTransmitNotStarted, instance->context);
+    //        instance->callback(IntercomBruteCustomEventTypeTransmitNotStarted, instance->context);
     //    } else {
-    //        instance->callback(SubBruteCustomEventTypeTransmitStarted, instance->context);
+    //        instance->callback(IntercomBruteCustomEventTypeTransmitStarted, instance->context);
     //    }
 
     if(!is_attacking) {
@@ -74,52 +74,52 @@ bool subbrute_attack_view_input(InputEvent* event, void* context) {
             FURI_LOG_D(TAG, "InputKey: %d OK", event->key);
 #endif
             with_view_model(
-                instance->view, (SubBruteAttackViewModel * model) {
+                instance->view, (IntercomBruteAttackViewModel * model) {
                     model->is_attacking = true;
                     model->is_continuous_worker = false;
                     icon_animation_stop(model->icon);
                     icon_animation_start(model->icon);
                     return true;
                 });
-            instance->callback(SubBruteCustomEventTypeTransmitStarted, instance->context);
+            instance->callback(IntercomBruteCustomEventTypeTransmitStarted, instance->context);
             /*if(event->type == InputTypeRepeat && event->key == InputKeyOk) {
 #ifdef FURI_DEBUG
-            FURI_LOG_D(TAG, "InputKey: %d OK. SubBruteCustomEventTypeTransmitContinuousStarted", event->key);
+            FURI_LOG_D(TAG, "InputKey: %d OK. IntercomBruteCustomEventTypeTransmitContinuousStarted", event->key);
 #endif
             with_view_model(
-                instance->view, (SubBruteAttackViewModel * model) {
+                instance->view, (IntercomBruteAttackViewModel * model) {
                     model->is_attacking = true;
                     model->is_continuous_worker = true;
                     icon_animation_stop(model->icon);
                     icon_animation_start(model->icon);
                     return true;
                 });
-            instance->callback(SubBruteCustomEventTypeTransmitContinuousStarted, instance->context);
+            instance->callback(IntercomBruteCustomEventTypeTransmitContinuousStarted, instance->context);
         } else if(event->type == InputTypeShort && event->key == InputKeyOk) {
 #ifdef FURI_DEBUG
             FURI_LOG_D(TAG, "InputKey: %d OK", event->key);
 #endif
             with_view_model(
-                instance->view, (SubBruteAttackViewModel * model) {
+                instance->view, (IntercomBruteAttackViewModel * model) {
                     model->is_attacking = true;
                     model->is_continuous_worker = false;
                     icon_animation_stop(model->icon);
                     icon_animation_start(model->icon);
                     return true;
                 });
-            instance->callback(SubBruteCustomEventTypeTransmitStarted, instance->context);*/
+            instance->callback(IntercomBruteCustomEventTypeTransmitStarted, instance->context);*/
         } else if(event->key == InputKeyUp) {
-            instance->callback(SubBruteCustomEventTypeSaveFile, instance->context);
+            instance->callback(IntercomBruteCustomEventTypeSaveFile, instance->context);
         } else if(event->key == InputKeyDown) {
-            instance->callback(SubBruteCustomEventTypeTransmitCustom, instance->context);
+            instance->callback(IntercomBruteCustomEventTypeTransmitCustom, instance->context);
         } else if(event->type == InputTypeShort) {
             if(event->key == InputKeyLeft) {
-                instance->callback(SubBruteCustomEventTypeChangeStepDown, instance->context);
+                instance->callback(IntercomBruteCustomEventTypeChangeStepDown, instance->context);
             } else if(event->key == InputKeyRight) {
-                instance->callback(SubBruteCustomEventTypeChangeStepUp, instance->context);
+                instance->callback(IntercomBruteCustomEventTypeChangeStepUp, instance->context);
             }
             //            with_view_model(
-            //                instance->view, (SubBruteAttackViewModel * model) {
+            //                instance->view, (IntercomBruteAttackViewModel * model) {
             //                    if(event->key == InputKeyLeft) {
             //                        model->current_step =
             //                            ((model->current_step - 1) + model->max_value) % model->max_value;
@@ -128,15 +128,15 @@ bool subbrute_attack_view_input(InputEvent* event, void* context) {
             //                    }
             //                    return true;
             //                });
-            //            instance->callback(SubBruteCustomEventTypeChangeStep, instance->context);
+            //            instance->callback(IntercomBruteCustomEventTypeChangeStep, instance->context);
         } else if(event->type == InputTypeRepeat) {
             if(event->key == InputKeyLeft) {
-                instance->callback(SubBruteCustomEventTypeChangeStepDownMore, instance->context);
+                instance->callback(IntercomBruteCustomEventTypeChangeStepDownMore, instance->context);
             } else if(event->key == InputKeyRight) {
-                instance->callback(SubBruteCustomEventTypeChangeStepUpMore, instance->context);
+                instance->callback(IntercomBruteCustomEventTypeChangeStepUpMore, instance->context);
             }
             /*with_view_model(
-                instance->view, (SubBruteAttackViewModel * model) {
+                instance->view, (IntercomBruteAttackViewModel * model) {
                     if(event->key == InputKeyLeft) {
                         model->current_step =
                             ((model->current_step - 100) + model->max_value) % model->max_value;
@@ -145,65 +145,65 @@ bool subbrute_attack_view_input(InputEvent* event, void* context) {
                     }
                     return true;
                 });
-            instance->callback(SubBruteCustomEventTypeChangeStep, instance->context);*/
+            instance->callback(IntercomBruteCustomEventTypeChangeStep, instance->context);*/
         }
     } else {
         if((event->type == InputTypeShort || event->type == InputTypeRepeat) &&
            (event->key == InputKeyOk || event->key == InputKeyBack)) {
             with_view_model(
-                instance->view, (SubBruteAttackViewModel * model) {
+                instance->view, (IntercomBruteAttackViewModel * model) {
                     model->is_attacking = false;
                     model->is_continuous_worker = false;
                     icon_animation_stop(model->icon);
                     icon_animation_start(model->icon);
                     return true;
                 });
-            instance->callback(SubBruteCustomEventTypeTransmitNotStarted, instance->context);
+            instance->callback(IntercomBruteCustomEventTypeTransmitNotStarted, instance->context);
         }
     }
 
     return true;
 }
 
-SubBruteAttackView* subbrute_attack_view_alloc() {
-    SubBruteAttackView* instance = malloc(sizeof(SubBruteAttackView));
+IntercomBruteAttackView* intercom_brute_attack_view_alloc() {
+    IntercomBruteAttackView* instance = malloc(sizeof(IntercomBruteAttackView));
 
     instance->view = view_alloc();
-    view_allocate_model(instance->view, ViewModelTypeLocking, sizeof(SubBruteAttackViewModel));
+    view_allocate_model(instance->view, ViewModelTypeLocking, sizeof(IntercomBruteAttackViewModel));
     view_set_context(instance->view, instance);
 
     with_view_model(
-        instance->view, (SubBruteAttackViewModel * model) {
+        instance->view, (IntercomBruteAttackViewModel * model) {
             model->icon = icon_animation_alloc(&A_Sub1ghz_14);
             view_tie_icon_animation(instance->view, model->icon);
             return false;
         });
 
-    view_set_draw_callback(instance->view, (ViewDrawCallback)subbrute_attack_view_draw);
-    view_set_input_callback(instance->view, subbrute_attack_view_input);
-    view_set_enter_callback(instance->view, subbrute_attack_view_enter);
-    view_set_exit_callback(instance->view, subbrute_attack_view_exit);
+    view_set_draw_callback(instance->view, (ViewDrawCallback)intercom_brute_attack_view_draw);
+    view_set_input_callback(instance->view, intercom_brute_attack_view_input);
+    view_set_enter_callback(instance->view, intercom_brute_attack_view_enter);
+    view_set_exit_callback(instance->view, intercom_brute_attack_view_exit);
 
     return instance;
 }
 
-void subbrute_attack_view_enter(void* context) {
+void intercom_brute_attack_view_enter(void* context) {
     furi_assert(context);
 
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_attack_view_enter");
+    FURI_LOG_D(TAG, "intercom_brute_attack_view_enter");
 #endif
 }
 
-void subbrute_attack_view_free(SubBruteAttackView* instance) {
+void intercom_brute_attack_view_free(IntercomBruteAttackView* instance) {
     furi_assert(instance);
 
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_attack_view_free");
+    FURI_LOG_D(TAG, "intercom_brute_attack_view_free");
 #endif
 
     with_view_model(
-        instance->view, (SubBruteAttackViewModel * model) {
+        instance->view, (IntercomBruteAttackViewModel * model) {
             icon_animation_free(model->icon);
             return false;
         });
@@ -212,27 +212,27 @@ void subbrute_attack_view_free(SubBruteAttackView* instance) {
     free(instance);
 }
 
-View* subbrute_attack_view_get_view(SubBruteAttackView* instance) {
+View* intercom_brute_attack_view_get_view(IntercomBruteAttackView* instance) {
     furi_assert(instance);
     return instance->view;
 }
 
-void subbrute_attack_view_set_current_step(SubBruteAttackView* instance, uint64_t current_step) {
+void intercom_brute_attack_view_set_current_step(IntercomBruteAttackView* instance, uint64_t current_step) {
     furi_assert(instance);
 #ifdef FURI_DEBUG
     //FURI_LOG_D(TAG, "Set step: %d", current_step);
 #endif
     with_view_model(
-        instance->view, (SubBruteAttackViewModel * model) {
+        instance->view, (IntercomBruteAttackViewModel * model) {
             model->current_step = current_step;
             return true;
         });
 }
 
-void subbrute_attack_view_set_worker_type(SubBruteAttackView* instance, bool is_continuous_worker) {
+void intercom_brute_attack_view_set_worker_type(IntercomBruteAttackView* instance, bool is_continuous_worker) {
     furi_assert(instance);
     with_view_model(
-        instance->view, (SubBruteAttackViewModel * model) {
+        instance->view, (IntercomBruteAttackViewModel * model) {
             model->is_continuous_worker = is_continuous_worker;
             return true;
         });
@@ -240,8 +240,8 @@ void subbrute_attack_view_set_worker_type(SubBruteAttackView* instance, bool is_
 
 // We need to call init every time, because not every time we calls enter
 // normally, call enter only once
-void subbrute_attack_view_init_values(
-    SubBruteAttackView* instance,
+void intercom_brute_attack_view_init_values(
+    IntercomBruteAttackView* instance,
     uint8_t index,
     uint64_t max_value,
     uint64_t current_step,
@@ -251,7 +251,7 @@ void subbrute_attack_view_init_values(
         TAG, "init, index: %d, max_value: %d, current_step: %d", index, max_value, current_step);
 #endif
     with_view_model(
-        instance->view, (SubBruteAttackViewModel * model) {
+        instance->view, (IntercomBruteAttackViewModel * model) {
             model->max_value = max_value;
             model->index = index;
             model->current_step = current_step;
@@ -265,14 +265,14 @@ void subbrute_attack_view_init_values(
         });
 }
 
-void subbrute_attack_view_exit(void* context) {
+void intercom_brute_attack_view_exit(void* context) {
     furi_assert(context);
-    SubBruteAttackView* instance = context;
+    IntercomBruteAttackView* instance = context;
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_attack_view_exit");
+    FURI_LOG_D(TAG, "intercom_brute_attack_view_exit");
 #endif
     with_view_model(
-        instance->view, (SubBruteAttackViewModel * model) {
+        instance->view, (IntercomBruteAttackViewModel * model) {
             icon_animation_stop(model->icon);
             return false;
         });
@@ -344,13 +344,13 @@ void elements_button_top_right(Canvas* canvas, const char* str) {
     canvas_invert_color(canvas);
 }
 
-void subbrute_attack_view_draw(Canvas* canvas, void* context) {
+void intercom_brute_attack_view_draw(Canvas* canvas, void* context) {
     furi_assert(context);
-    SubBruteAttackViewModel* model = (SubBruteAttackViewModel*)context;
+    IntercomBruteAttackViewModel* model = (IntercomBruteAttackViewModel*)context;
     char buffer[26];
 
     const char* attack_name = NULL;
-    attack_name = subbrute_get_menu_name(model->index);
+    attack_name = intercom_brute_get_menu_name(model->index);
     // Title
     if(model->is_attacking) {
         canvas_set_color(canvas, ColorBlack);

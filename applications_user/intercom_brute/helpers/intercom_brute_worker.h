@@ -2,38 +2,38 @@
 
 #include <furi_hal_subghz.h>
 
-typedef struct SubBruteWorker SubBruteWorker;
+typedef struct IntercomBruteWorker IntercomBruteWorker;
 /**
  * Same like SubGhzTxRxWorkerStatus in subghz_tx_rx_worker.h
  * using just to not include that file
 
 typedef enum {
-    SubBruteWorkerStatusIDLE,
-    SubBruteWorkerStatusTx,
-    // SubBruteWorkerStatusRx,
-} SubBruteWorkerStatus;
+    IntercomBruteWorkerStatusIDLE,
+    IntercomBruteWorkerStatusTx,
+    // IntercomBruteWorkerStatusRx,
+} IntercomBruteWorkerStatus;
 
-//typedef void (*SubBruteWorkerCallback)(SubBruteWorkerStatus event, void* context);
+//typedef void (*IntercomBruteWorkerCallback)(IntercomBruteWorkerStatus event, void* context);
 */
-SubBruteWorker* subbrute_worker_alloc();
-void subbrute_worker_free(SubBruteWorker* instance);
-bool subbrute_worker_start(
-    SubBruteWorker* instance,
+IntercomBruteWorker* intercom_brute_worker_alloc();
+void intercom_brute_worker_free(IntercomBruteWorker* instance);
+bool intercom_brute_worker_start(
+    IntercomBruteWorker* instance,
     uint32_t frequency,
     FuriHalSubGhzPreset preset,
     const char* protocol_name);
-void subbrute_worker_stop(SubBruteWorker* instance);
-bool subbrute_worker_get_continuous_worker(SubBruteWorker* instance);
-void subbrute_worker_set_continuous_worker(SubBruteWorker* instance, bool is_continuous_worker);
-//bool subbrute_worker_write(SubBruteWorker* instance, uint8_t* data, size_t size);
-bool subbrute_worker_is_running(SubBruteWorker* instance);
-bool subbrute_worker_can_transmit(SubBruteWorker* instance);
-bool subbrute_worker_can_manual_transmit(SubBruteWorker* instance, bool is_button_pressed);
-bool subbrute_worker_transmit(SubBruteWorker* instance, const char* payload);
-bool subbrute_worker_init_manual_transmit(
-    SubBruteWorker* instance,
+void intercom_brute_worker_stop(IntercomBruteWorker* instance);
+bool intercom_brute_worker_get_continuous_worker(IntercomBruteWorker* instance);
+void intercom_brute_worker_set_continuous_worker(IntercomBruteWorker* instance, bool is_continuous_worker);
+//bool intercom_brute_worker_write(IntercomBruteWorker* instance, uint8_t* data, size_t size);
+bool intercom_brute_worker_is_running(IntercomBruteWorker* instance);
+bool intercom_brute_worker_can_transmit(IntercomBruteWorker* instance);
+bool intercom_brute_worker_can_manual_transmit(IntercomBruteWorker* instance, bool is_button_pressed);
+bool intercom_brute_worker_transmit(IntercomBruteWorker* instance, const char* payload);
+bool intercom_brute_worker_init_manual_transmit(
+    IntercomBruteWorker* instance,
     uint32_t frequency,
     FuriHalSubGhzPreset preset,
     const char* protocol_name);
-bool subbrute_worker_manual_transmit(SubBruteWorker* instance, const char* payload);
-void subbrute_worker_manual_transmit_stop(SubBruteWorker* instance);
+bool intercom_brute_worker_manual_transmit(IntercomBruteWorker* instance, const char* payload);
+void intercom_brute_worker_manual_transmit_stop(IntercomBruteWorker* instance);

@@ -1,30 +1,30 @@
 #pragma once
 
-#include "../subbrute_custom_event.h"
+#include "../intercom_brute_custom_event.h"
 #include <gui/view.h>
 #include "assets_icons.h"
 #include <input/input.h>
 #include <gui/elements.h>
 #include <gui/icon.h>
 
-typedef void (*SubBruteMainViewCallback)(SubBruteCustomEvent event, void* context);
-typedef struct SubBruteMainView SubBruteMainView;
+typedef void (*IntercomBruteMainViewCallback)(IntercomBruteCustomEvent event, void* context);
+typedef struct IntercomBruteMainView IntercomBruteMainView;
 
-void subbrute_main_view_set_callback(
-    SubBruteMainView* instance,
-    SubBruteMainViewCallback callback,
+void intercom_brute_main_view_set_callback(
+    IntercomBruteMainView* instance,
+    IntercomBruteMainViewCallback callback,
     void* context);
 
-SubBruteMainView* subbrute_main_view_alloc();
-void subbrute_main_view_free(SubBruteMainView* instance);
-View* subbrute_main_view_get_view(SubBruteMainView* instance);
-void subbrute_main_view_set_index(
-    SubBruteMainView* instance,
+IntercomBruteMainView* intercom_brute_main_view_alloc();
+void intercom_brute_main_view_free(IntercomBruteMainView* instance);
+View* intercom_brute_main_view_get_view(IntercomBruteMainView* instance);
+void intercom_brute_main_view_set_index(
+    IntercomBruteMainView* instance,
     uint8_t idx,
     bool is_select_byte,
     const char* key_field);
-uint8_t subbrute_main_view_get_index(SubBruteMainView* instance);
-void subbrute_attack_view_enter(void* context);
-void subbrute_attack_view_exit(void* context);
-bool subbrute_attack_view_input(InputEvent* event, void* context);
-void subbrute_attack_view_draw(Canvas* canvas, void* context);
+uint8_t intercom_brute_main_view_get_index(IntercomBruteMainView* instance);
+void intercom_brute_attack_view_enter(void* context);
+void intercom_brute_attack_view_exit(void* context);
+bool intercom_brute_attack_view_input(InputEvent* event, void* context);
+void intercom_brute_attack_view_draw(Canvas* canvas, void* context);

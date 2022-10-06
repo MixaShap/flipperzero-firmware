@@ -1,5 +1,5 @@
-#include "subbrute_main_view.h"
-#include "../subbrute_i.h"
+#include "intercom_brute_main_view.h"
+#include "../intercom_brute_i.h"
 
 #include <input/input.h>
 #include <gui/elements.h>
@@ -7,11 +7,11 @@
 #include <gui/icon.h>
 
 #define STATUS_BAR_Y_SHIFT 14
-#define TAG "SubBruteMainView"
+#define TAG "IntercomBruteMainView"
 
-struct SubBruteMainView {
+struct IntercomBruteMainView {
     View* view;
-    SubBruteMainViewCallback callback;
+    IntercomBruteMainViewCallback callback;
     void* context;
 };
 
@@ -20,11 +20,11 @@ typedef struct {
     uint8_t window_position;
     bool is_select_byte;
     const char* key_field;
-} SubBruteMainViewModel;
+} IntercomBruteMainViewModel;
 
-void subbrute_main_view_set_callback(
-    SubBruteMainView* instance,
-    SubBruteMainViewCallback callback,
+void intercom_brute_main_view_set_callback(
+    IntercomBruteMainView* instance,
+    IntercomBruteMainViewCallback callback,
     void* context) {
     furi_assert(instance);
     furi_assert(callback);
@@ -78,8 +78,8 @@ FuriString* center_displayed_key(const char* key_cstr, uint8_t index) {
     return furi_string_alloc_set(display_menu);
 }
 
-void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
-    SubBruteMainViewModel* m = model;
+void intercom_brute_main_view_draw(Canvas* canvas, IntercomBruteMainViewModel* model) {
+    IntercomBruteMainViewModel* m = model;
 
     // Title
     canvas_set_font(canvas, FontPrimary);
@@ -119,11 +119,11 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
 #ifdef FURI_DEBUG
         FURI_LOG_D(TAG, "window_position: %d, index: %d", model->window_position, m->index);
 #endif
-        for(uint8_t position = 0; position < SubBruteAttackTotalCount; ++position) {
+        for(uint8_t position = 0; position < IntercomBruteAttackTotalCount; ++position) {
             uint8_t item_position = position - model->window_position;
 
             if(item_position < items_on_screen) {
-                const char* str = subbrute_get_menu_name(position);
+                const char* str = intercom_brute_get_menu_name(position);
                 if(m->index == position) {
                     canvas_draw_str_aligned(
                         canvas,
@@ -152,11 +152,11 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
             STATUS_BAR_Y_SHIFT + 2,
             canvas_height(canvas) - STATUS_BAR_Y_SHIFT,
             m->index,
-            SubBruteAttackTotalCount);
+            IntercomBruteAttackTotalCount);
     }
 }
 
-bool subbrute_main_view_input(InputEvent* event, void* context) {
+bool intercom_brute_main_view_input(InputEvent* event, void* context) {
     furi_assert(event);
     furi_assert(context);
 #ifdef FURI_DEBUG
@@ -167,13 +167,13 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
         return false;
     }
 
-    SubBruteMainView* instance = context;
+    IntercomBruteMainView* instance = context;
     const uint8_t min_value = 0;
-    const uint8_t correct_total = SubBruteAttackTotalCount - 1;
+    const uint8_t correct_total = IntercomBruteAttackTotalCount - 1;
     uint8_t index = 0;
     bool is_select_byte = false;
     with_view_model(
-        instance->view, (SubBruteMainViewModel * model) {
+        instance->view, (IntercomBruteMainViewModel * model) {
             is_select_byte = model->is_select_byte;
             return false;
         });
@@ -182,7 +182,7 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
     if(!is_select_byte) {
         if((event->type == InputTypeShort) || (event->type == InputTypeRepeat)) {
             with_view_model(
-                instance->view, (SubBruteMainViewModel * model) {
+                instance->view, (IntercomBruteMainViewModel * model) {
                     bool ret = false;
                     uint8_t items_on_screen = 3;
                     if(event->key == InputKeyUp) {
@@ -208,13 +208,13 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
                             model->window_position -= 1;
                         }
 
-                        if(SubBruteAttackTotalCount <= items_on_screen) {
+                        if(IntercomBruteAttackTotalCount <= items_on_screen) {
                             model->window_position = 0;
                         } else {
                             if(model->window_position >=
-                               (SubBruteAttackTotalCount - items_on_screen)) {
+                               (IntercomBruteAttackTotalCount - items_on_screen)) {
                                 model->window_position =
-                                    (SubBruteAttackTotalCount - items_on_screen);
+                                    (IntercomBruteAttackTotalCount - items_on_screen);
                             }
                         }
                     }
@@ -225,7 +225,7 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
 
 #ifdef FURI_DEBUG
         with_view_model(
-            instance->view, (SubBruteMainViewModel * model) {
+            instance->view, (IntercomBruteMainViewModel * model) {
                 index = model->index;
                 return false;
             });
@@ -233,17 +233,17 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
 #endif
 
         if(event->key == InputKeyOk && event->type == InputTypeShort) {
-            if(index == SubBruteAttackLoadFile) {
-                instance->callback(SubBruteCustomEventTypeLoadFile, instance->context);
+            if(index == IntercomBruteAttackLoadFile) {
+                instance->callback(IntercomBruteCustomEventTypeLoadFile, instance->context);
             } else {
-                instance->callback(SubBruteCustomEventTypeMenuSelected, instance->context);
+                instance->callback(IntercomBruteCustomEventTypeMenuSelected, instance->context);
             }
             consumed = true;
         }
     } else {
         if((event->type == InputTypeShort) || (event->type == InputTypeRepeat)) {
             with_view_model(
-                instance->view, (SubBruteMainViewModel * model) {
+                instance->view, (IntercomBruteMainViewModel * model) {
                     if(event->key == InputKeyLeft) {
                         if(model->index > 0) {
                             model->index--;
@@ -261,7 +261,7 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
 
 #ifdef FURI_DEBUG
         with_view_model(
-            instance->view, (SubBruteMainViewModel * model) {
+            instance->view, (IntercomBruteMainViewModel * model) {
                 index = model->index;
                 return false;
             });
@@ -269,7 +269,7 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
 #endif
 
         if(event->key == InputKeyOk && event->type == InputTypeShort) {
-            instance->callback(SubBruteCustomEventTypeIndexSelected, instance->context);
+            instance->callback(IntercomBruteCustomEventTypeIndexSelected, instance->context);
             consumed = true;
         }
     }
@@ -277,34 +277,34 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
     return consumed;
 }
 
-void subbrute_main_view_enter(void* context) {
+void intercom_brute_main_view_enter(void* context) {
     furi_assert(context);
 
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_main_view_enter");
+    FURI_LOG_D(TAG, "intercom_brute_main_view_enter");
 #endif
 }
 
-void subbrute_main_view_exit(void* context) {
+void intercom_brute_main_view_exit(void* context) {
     furi_assert(context);
 
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_main_view_exit");
+    FURI_LOG_D(TAG, "intercom_brute_main_view_exit");
 #endif
 }
 
-SubBruteMainView* subbrute_main_view_alloc() {
-    SubBruteMainView* instance = malloc(sizeof(SubBruteMainView));
+IntercomBruteMainView* intercom_brute_main_view_alloc() {
+    IntercomBruteMainView* instance = malloc(sizeof(IntercomBruteMainView));
     instance->view = view_alloc();
-    view_allocate_model(instance->view, ViewModelTypeLocking, sizeof(SubBruteMainViewModel));
+    view_allocate_model(instance->view, ViewModelTypeLocking, sizeof(IntercomBruteMainViewModel));
     view_set_context(instance->view, instance);
-    view_set_draw_callback(instance->view, (ViewDrawCallback)subbrute_main_view_draw);
-    view_set_input_callback(instance->view, subbrute_main_view_input);
-    view_set_enter_callback(instance->view, subbrute_main_view_enter);
-    view_set_exit_callback(instance->view, subbrute_main_view_exit);
+    view_set_draw_callback(instance->view, (ViewDrawCallback)intercom_brute_main_view_draw);
+    view_set_input_callback(instance->view, intercom_brute_main_view_input);
+    view_set_enter_callback(instance->view, intercom_brute_main_view_enter);
+    view_set_exit_callback(instance->view, intercom_brute_main_view_exit);
 
     with_view_model(
-        instance->view, (SubBruteMainViewModel * model) {
+        instance->view, (IntercomBruteMainViewModel * model) {
             model->index = 0;
             model->window_position = 0;
             model->key_field = NULL;
@@ -315,30 +315,30 @@ SubBruteMainView* subbrute_main_view_alloc() {
     return instance;
 }
 
-void subbrute_main_view_free(SubBruteMainView* instance) {
+void intercom_brute_main_view_free(IntercomBruteMainView* instance) {
     furi_assert(instance);
 
     view_free(instance->view);
     free(instance);
 }
 
-View* subbrute_main_view_get_view(SubBruteMainView* instance) {
+View* intercom_brute_main_view_get_view(IntercomBruteMainView* instance) {
     furi_assert(instance);
     return instance->view;
 }
 
-void subbrute_main_view_set_index(
-    SubBruteMainView* instance,
+void intercom_brute_main_view_set_index(
+    IntercomBruteMainView* instance,
     uint8_t idx,
     bool is_select_byte,
     const char* key_field) {
     furi_assert(instance);
-    furi_assert(idx < SubBruteAttackTotalCount);
+    furi_assert(idx < IntercomBruteAttackTotalCount);
 #ifdef FURI_DEBUG
     FURI_LOG_I(TAG, "Set index: %d", idx);
 #endif
     with_view_model(
-        instance->view, (SubBruteMainViewModel * model) {
+        instance->view, (IntercomBruteMainViewModel * model) {
             model->is_select_byte = is_select_byte;
             model->key_field = key_field;
             model->index = idx;
@@ -351,11 +351,11 @@ void subbrute_main_view_set_index(
                     model->window_position -= 1;
                 }
 
-                if(SubBruteAttackTotalCount <= items_on_screen) {
+                if(IntercomBruteAttackTotalCount <= items_on_screen) {
                     model->window_position = 0;
                 } else {
-                    if(model->window_position >= (SubBruteAttackTotalCount - items_on_screen)) {
-                        model->window_position = (SubBruteAttackTotalCount - items_on_screen);
+                    if(model->window_position >= (IntercomBruteAttackTotalCount - items_on_screen)) {
+                        model->window_position = (IntercomBruteAttackTotalCount - items_on_screen);
                     }
                 }
             }
@@ -363,12 +363,12 @@ void subbrute_main_view_set_index(
         });
 }
 
-SubBruteAttacks subbrute_main_view_get_index(SubBruteMainView* instance) {
+IntercomBruteAttacks intercom_brute_main_view_get_index(IntercomBruteMainView* instance) {
     furi_assert(instance);
 
     uint8_t idx = 0;
     with_view_model(
-        instance->view, (SubBruteMainViewModel * model) {
+        instance->view, (IntercomBruteMainViewModel * model) {
             idx = model->index;
             return false;
         });

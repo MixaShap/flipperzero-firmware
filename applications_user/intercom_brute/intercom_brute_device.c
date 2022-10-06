@@ -1,5 +1,5 @@
-#include "subbrute_device.h"
-#include "subbrute_i.h"
+#include "intercom_brute_device.h"
+#include "intercom_brute_i.h"
 
 #include <furi.h>
 #include <furi_hal.h>
@@ -18,7 +18,7 @@
 #include <lib/toolbox/path.h>
 #include <lib/flipper_format/flipper_format_i.h>
 
-#define TAG "SubBruteDevice"
+#define TAG "IntercomBruteDevice"
 
 /**
  * List of protocols
@@ -33,12 +33,12 @@ static const char* protocol_raw = "RAW";
 /**
  * Values to not use less memory for packet parse operations
  */
-static const char* subbrute_key_file_start =
+static const char* intercom_brute_key_file_start =
     "Filetype: Flipper SubGhz Key File\nVersion: 1\nFrequency: %u\nPreset: %s\nProtocol: %s\nBit: %d";
-static const char* subbrute_key_file_key = "%s\nKey: %s\n";
-static const char* subbrute_key_file_princeton_end = "%s\nKey: %s\nTE: %d\n";
-static const char* subbrute_key_small_no_tail = "Bit: %d\nKey: %s\n";
-static const char* subbrute_key_small_with_tail = "Bit: %d\nKey: %s\nTE: %d\n";
+static const char* intercom_brute_key_file_key = "%s\nKey: %s\n";
+static const char* intercom_brute_key_file_princeton_end = "%s\nKey: %s\nTE: %d\n";
+static const char* intercom_brute_key_small_no_tail = "Bit: %d\nKey: %s\n";
+static const char* intercom_brute_key_small_with_tail = "Bit: %d\nKey: %s\nTE: %d\n";
 
 // Why nobody set in as const in all codebase?
 static const char* preset_ook270_async = "FuriHalSubGhzPresetOok270Async";
@@ -48,10 +48,10 @@ static const char* preset_2fsk_dev476_async = "FuriHalSubGhzPreset2FSKDev476Asyn
 static const char* preset_msk99_97_kb_async = "FuriHalSubGhzPresetMSK99_97KbAsync";
 static const char* preset_gfs99_97_kb_async = "FuriHalSubGhzPresetGFS99_97KbAsync";
 
-SubBruteDevice* subbrute_device_alloc() {
-    SubBruteDevice* instance = malloc(sizeof(SubBruteDevice));
+IntercomBruteDevice* intercom_brute_device_alloc() {
+    IntercomBruteDevice* instance = malloc(sizeof(IntercomBruteDevice));
 
-    instance->state = SubBruteDeviceStateIDLE;
+    instance->state = IntercomBruteDeviceStateIDLE;
     instance->key_index = 0;
 
     instance->load_path = furi_string_alloc();
@@ -62,15 +62,15 @@ SubBruteDevice* subbrute_device_alloc() {
     instance->receiver = NULL;
     instance->environment = subghz_environment_alloc();
 
-    subbrute_device_attack_set_default_values(instance, SubBruteAttackCAME12bit307);
+    intercom_brute_device_attack_set_default_values(instance, IntercomBruteAttackCAME12bit307);
 
     return instance;
 }
 
-void subbrute_device_free(SubBruteDevice* instance) {
+void intercom_brute_device_free(IntercomBruteDevice* instance) {
     furi_assert(instance);
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_device_free");
+    FURI_LOG_D(TAG, "intercom_brute_device_free");
 #endif
 
     // I don't know how to free this
@@ -98,17 +98,17 @@ void subbrute_device_free(SubBruteDevice* instance) {
     free(instance);
 }
 
-bool subbrute_device_save_file(SubBruteDevice* instance, const char* dev_file_name) {
+bool intercom_brute_device_save_file(IntercomBruteDevice* instance, const char* dev_file_name) {
     furi_assert(instance);
 
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_device_save_file: %s", dev_file_name);
+    FURI_LOG_D(TAG, "intercom_brute_device_save_file: %s", dev_file_name);
 #endif
-    bool result = subbrute_device_create_packet_parsed(instance, instance->key_index, false);
+    bool result = intercom_brute_device_create_packet_parsed(instance, instance->key_index, false);
 
     if(!result) {
-        FURI_LOG_E(TAG, "subbrute_device_create_packet_parsed failed!");
-        //subbrute_device_notification_message(instance, &sequence_error);
+        FURI_LOG_E(TAG, "intercom_brute_device_create_packet_parsed failed!");
+        //intercom_brute_device_notification_message(instance, &sequence_error);
         return false;
     }
 
@@ -130,7 +130,7 @@ bool subbrute_device_save_file(SubBruteDevice* instance, const char* dev_file_na
     stream_free(stream);
     if(!result) {
         FURI_LOG_E(TAG, "stream_write_string failed!");
-        //subbrute_device_notification_message(instance, &sequence_error);
+        //intercom_brute_device_notification_message(instance, &sequence_error);
     }
 
     furi_record_close(RECORD_STORAGE);
@@ -138,52 +138,52 @@ bool subbrute_device_save_file(SubBruteDevice* instance, const char* dev_file_na
     return result;
 }
 
-const char* subbrute_device_error_get_desc(SubBruteFileResult error_id) {
+const char* intercom_brute_device_error_get_desc(IntercomBruteFileResult error_id) {
     const char* result;
     switch(error_id) {
-    case(SubBruteFileResultOk):
+    case(IntercomBruteFileResultOk):
         result = "OK";
         break;
-    case(SubBruteFileResultErrorOpenFile):
+    case(IntercomBruteFileResultErrorOpenFile):
         result = "invalid name/path";
         break;
-    case(SubBruteFileResultMissingOrIncorrectHeader):
+    case(IntercomBruteFileResultMissingOrIncorrectHeader):
         result = "Missing or incorrect header";
         break;
-    case(SubBruteFileResultFrequencyNotAllowed):
+    case(IntercomBruteFileResultFrequencyNotAllowed):
         result = "Invalid frequency!";
         break;
-    case(SubBruteFileResultMissingOrIncorrectFrequency):
+    case(IntercomBruteFileResultMissingOrIncorrectFrequency):
         result = "Missing or incorrect Frequency";
         break;
-    case(SubBruteFileResultPresetInvalid):
+    case(IntercomBruteFileResultPresetInvalid):
         result = "Preset FAIL";
         break;
-    case(SubBruteFileResultMissingProtocol):
+    case(IntercomBruteFileResultMissingProtocol):
         result = "Missing Protocol";
         break;
-    case(SubBruteFileResultProtocolNotSupported):
+    case(IntercomBruteFileResultProtocolNotSupported):
         result = "RAW unsupported";
         break;
-    case(SubBruteFileResultDynamicProtocolNotValid):
+    case(IntercomBruteFileResultDynamicProtocolNotValid):
         result = "Dynamic protocol unsupported";
         break;
-    case(SubBruteFileResultProtocolNotFound):
+    case(IntercomBruteFileResultProtocolNotFound):
         result = "Protocol not found";
         break;
-    case(SubBruteFileResultMissingOrIncorrectBit):
+    case(IntercomBruteFileResultMissingOrIncorrectBit):
         result = "Missing or incorrect Bit";
         break;
-    case(SubBruteFileResultBigBitSize):
+    case(IntercomBruteFileResultBigBitSize):
         result = "Has more than 24 Bits";
         break;
-    case(SubBruteFileResultMissingOrIncorrectKey):
+    case(IntercomBruteFileResultMissingOrIncorrectKey):
         result = "Missing or incorrect Key";
         break;
-    case(SubBruteFileResultMissingOrIncorrectTe):
+    case(IntercomBruteFileResultMissingOrIncorrectTe):
         result = "Missing or incorrect TE";
         break;
-    case SubBruteFileResultUnknown:
+    case IntercomBruteFileResultUnknown:
     default:
         result = "Unknown error";
         break;
@@ -191,7 +191,7 @@ const char* subbrute_device_error_get_desc(SubBruteFileResult error_id) {
     return result;
 }
 
-bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t step, bool small) {
+bool intercom_brute_device_create_packet_parsed(IntercomBruteDevice* instance, uint64_t step, bool small) {
     furi_assert(instance);
 
     //char step_payload[32];
@@ -199,14 +199,14 @@ bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t ste
     memset(instance->payload, 0, sizeof(instance->payload));
     FuriString* candidate = furi_string_alloc();
 
-    if(instance->attack == SubBruteAttackLoadFile) {
+    if(instance->attack == IntercomBruteAttackLoadFile) {
         if(step >= sizeof(instance->file_key)) {
             return false;
         }
-        char subbrute_payload_byte[4];
+        char intercom_brute_payload_byte[4];
         furi_string_set_str(candidate, instance->file_key);
-        snprintf(subbrute_payload_byte, 4, "%02X ", (uint8_t)step);
-        furi_string_replace_at(candidate, instance->load_index * 3, 3, subbrute_payload_byte);
+        snprintf(intercom_brute_payload_byte, 4, "%02X ", (uint8_t)step);
+        furi_string_replace_at(candidate, instance->load_index * 3, 3, intercom_brute_payload_byte);
         //snprintf(step_payload, sizeof(step_payload), "%02X", (uint8_t)instance->file_key[step]);
     } else {
         //snprintf(step_payload, sizeof(step_payload), "%16X", step);
@@ -237,7 +237,7 @@ bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t ste
             snprintf(
                 instance->payload,
                 sizeof(instance->payload),
-                subbrute_key_small_with_tail,
+                intercom_brute_key_small_with_tail,
                 instance->bit,
                 furi_string_get_cstr(candidate),
                 instance->te);
@@ -245,7 +245,7 @@ bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t ste
             snprintf(
                 instance->payload,
                 sizeof(instance->payload),
-                subbrute_key_small_no_tail,
+                intercom_brute_key_small_no_tail,
                 instance->bit,
                 furi_string_get_cstr(candidate));
         }
@@ -254,7 +254,7 @@ bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t ste
             snprintf(
                 instance->payload,
                 sizeof(instance->payload),
-                subbrute_key_file_princeton_end,
+                intercom_brute_key_file_princeton_end,
                 instance->file_template,
                 furi_string_get_cstr(candidate),
                 instance->te);
@@ -262,7 +262,7 @@ bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t ste
             snprintf(
                 instance->payload,
                 sizeof(instance->payload),
-                subbrute_key_file_key,
+                intercom_brute_key_file_key,
                 instance->file_template,
                 furi_string_get_cstr(candidate));
         }
@@ -277,72 +277,72 @@ bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t ste
     return true;
 }
 
-SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBruteAttacks type) {
+IntercomBruteFileResult intercom_brute_device_attack_set(IntercomBruteDevice* instance, IntercomBruteAttacks type) {
     furi_assert(instance);
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_device_attack_set: %d", type);
+    FURI_LOG_D(TAG, "intercom_brute_device_attack_set: %d", type);
 #endif
-    subbrute_device_attack_set_default_values(instance, type);
+    intercom_brute_device_attack_set_default_values(instance, type);
     switch(type) {
-    case SubBruteAttackLoadFile:
+    case IntercomBruteAttackLoadFile:
         // In this case values must be already set
         //        file_result =
-        //            subbrute_device_load_from_file(instance, furi_string_get_cstr(instance->load_path));
-        //        if(file_result != SubBruteFileResultOk) {
+        //            intercom_brute_device_load_from_file(instance, furi_string_get_cstr(instance->load_path));
+        //        if(file_result != IntercomBruteFileResultOk) {
         //            // Failed load file so failed to set attack type
         //            return file_result; // RETURN
         //        }
         break;
-    case SubBruteAttackCAME12bit303:
-    case SubBruteAttackCAME12bit307:
-    case SubBruteAttackCAME12bit433:
-    case SubBruteAttackCAME12bit868:
-        if(type == SubBruteAttackCAME12bit303) {
+    case IntercomBruteAttackCAME12bit303:
+    case IntercomBruteAttackCAME12bit307:
+    case IntercomBruteAttackCAME12bit433:
+    case IntercomBruteAttackCAME12bit868:
+        if(type == IntercomBruteAttackCAME12bit303) {
             instance->frequency = 303875000;
-        } else if(type == SubBruteAttackCAME12bit307) {
+        } else if(type == IntercomBruteAttackCAME12bit307) {
             instance->frequency = 307800000;
-        } else if(type == SubBruteAttackCAME12bit433) {
+        } else if(type == IntercomBruteAttackCAME12bit433) {
             instance->frequency = 433920000;
-        } else /* ALWAYS TRUE if(type == SubBruteAttackCAME12bit868) */ {
+        } else /* ALWAYS TRUE if(type == IntercomBruteAttackCAME12bit868) */ {
             instance->frequency = 868350000;
         }
         instance->bit = 12;
         furi_string_set_str(instance->protocol_name, protocol_came);
         furi_string_set_str(instance->preset_name, preset_ook650_async);
         break;
-    case SubBruteAttackChamberlain9bit300:
-    case SubBruteAttackChamberlain9bit315:
-    case SubBruteAttackChamberlain9bit390:
-        if(type == SubBruteAttackChamberlain9bit300) {
+    case IntercomBruteAttackChamberlain9bit300:
+    case IntercomBruteAttackChamberlain9bit315:
+    case IntercomBruteAttackChamberlain9bit390:
+        if(type == IntercomBruteAttackChamberlain9bit300) {
             instance->frequency = 300000000;
-        } else if(type == SubBruteAttackChamberlain9bit315) {
+        } else if(type == IntercomBruteAttackChamberlain9bit315) {
             instance->frequency = 315000000;
-        } else /* ALWAYS TRUE if(type == SubBruteAttackChamberlain9bit390) */ {
+        } else /* ALWAYS TRUE if(type == IntercomBruteAttackChamberlain9bit390) */ {
             instance->frequency = 390000000;
         }
         instance->bit = 9;
         furi_string_set_str(instance->protocol_name, protocol_cham_code);
         furi_string_set_str(instance->preset_name, preset_ook650_async);
         break;
-    case SubBruteAttackLinear10bit300:
+    case IntercomBruteAttackLinear10bit300:
         instance->frequency = 300000000;
         instance->bit = 10;
         furi_string_set_str(instance->protocol_name, protocol_linear);
         furi_string_set_str(instance->preset_name, preset_ook650_async);
         break;
-    case SubBruteAttackLinear10bit310:
+    case IntercomBruteAttackLinear10bit310:
         instance->frequency = 310000000;
         instance->bit = 10;
         furi_string_set_str(instance->protocol_name, protocol_linear);
         furi_string_set_str(instance->preset_name, preset_ook650_async);
         break;
-    case SubBruteAttackNICE12bit433:
+    case IntercomBruteAttackNICE12bit433:
         instance->frequency = 433920000;
         instance->bit = 12;
         furi_string_set_str(instance->protocol_name, protocol_nice_flo);
         furi_string_set_str(instance->preset_name, preset_ook650_async);
         break;
-    case SubBruteAttackNICE12bit868:
+    case IntercomBruteAttackNICE12bit868:
         instance->frequency = 868350000;
         instance->bit = 12;
         furi_string_set_str(instance->protocol_name, protocol_nice_flo);
@@ -350,12 +350,12 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
         break;
     default:
         FURI_LOG_E(TAG, "Unknown attack type: %d", type);
-        return SubBruteFileResultProtocolNotFound; // RETURN
+        return IntercomBruteFileResultProtocolNotFound; // RETURN
     }
 
     /*if(!furi_hal_subghz_is_tx_allowed(instance->frequency)) {
         FURI_LOG_E(TAG, "Frequency invalid: %d", instance->frequency);
-        return SubBruteFileResultMissingOrIncorrectFrequency; // RETURN
+        return IntercomBruteFileResultMissingOrIncorrectFrequency; // RETURN
     }*/
 
     // For non-file types we didn't set SubGhzProtocolDecoderBase
@@ -363,8 +363,8 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
     subghz_receiver_set_filter(instance->receiver, SubGhzProtocolFlag_Decodable);
     furi_hal_subghz_reset();
 
-    uint8_t protocol_check_result = SubBruteFileResultProtocolNotFound;
-    if(type != SubBruteAttackLoadFile) {
+    uint8_t protocol_check_result = IntercomBruteFileResultProtocolNotFound;
+    if(type != IntercomBruteAttackLoadFile) {
         instance->decoder_result = subghz_receiver_search_decoder_base_by_name(
             instance->receiver, furi_string_get_cstr(instance->protocol_name));
 
@@ -372,27 +372,27 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
            instance->decoder_result->protocol->type == SubGhzProtocolTypeDynamic) {
             FURI_LOG_E(TAG, "Can't load SubGhzProtocolDecoderBase in phase non-file decoder set");
         } else {
-            protocol_check_result = SubBruteFileResultOk;
+            protocol_check_result = IntercomBruteFileResultOk;
         }
     } else {
         // And here we need to set preset enum
         instance->preset =
-            subbrute_device_convert_preset(furi_string_get_cstr(instance->preset_name));
-        protocol_check_result = SubBruteFileResultOk;
+            intercom_brute_device_convert_preset(furi_string_get_cstr(instance->preset_name));
+        protocol_check_result = IntercomBruteFileResultOk;
     }
 
     subghz_receiver_free(instance->receiver);
     instance->receiver = NULL;
 
-    if(protocol_check_result != SubBruteFileResultOk) {
-        return SubBruteFileResultProtocolNotFound;
+    if(protocol_check_result != IntercomBruteFileResultOk) {
+        return IntercomBruteFileResultProtocolNotFound;
     }
 
     instance->has_tail =
         (strcmp(furi_string_get_cstr(instance->protocol_name), protocol_princeton) == 0);
 
     // Calc max value
-    if(instance->attack == SubBruteAttackLoadFile) {
+    if(instance->attack == IntercomBruteAttackLoadFile) {
         instance->max_value = 0x3F;
     } else {
         FuriString* max_value_s;
@@ -409,17 +409,17 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
     snprintf(
         instance->file_template,
         sizeof(instance->file_template),
-        subbrute_key_file_start,
+        intercom_brute_key_file_start,
         instance->frequency,
         furi_string_get_cstr(instance->preset_name),
         furi_string_get_cstr(instance->protocol_name),
         instance->bit);
 //    strncat(instance->file_template, "\n", sizeof(instance->file_template));
-//    strncat(instance->file_template, subbrute_key_file_key, sizeof(instance->file_template));
+//    strncat(instance->file_template, intercom_brute_key_file_key, sizeof(instance->file_template));
 //    if(instance->has_tail) {
 //        strncat(
 //            instance->file_template,
-//            subbrute_key_file_princeton_end,
+//            intercom_brute_key_file_princeton_end,
 //            sizeof(instance->file_template));
 //    }
 #ifdef FURI_DEBUG
@@ -427,17 +427,17 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
 #endif
 
     // Init payload
-    subbrute_device_create_packet_parsed(instance, instance->key_index, false);
+    intercom_brute_device_create_packet_parsed(instance, instance->key_index, false);
 
-    return SubBruteFileResultOk;
+    return IntercomBruteFileResultOk;
 }
 
-uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, FuriString* file_path) {
+uint8_t intercom_brute_device_load_from_file(IntercomBruteDevice* instance, FuriString* file_path) {
     furi_assert(instance);
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_device_load_from_file: %s", furi_string_get_cstr(file_path));
+    FURI_LOG_D(TAG, "intercom_brute_device_load_from_file: %s", furi_string_get_cstr(file_path));
 #endif
-    SubBruteFileResult result = SubBruteFileResultUnknown;
+    IntercomBruteFileResult result = IntercomBruteFileResultUnknown;
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
@@ -453,12 +453,12 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, FuriString* fil
     do {
         if(!flipper_format_file_open_existing(fff_data_file, furi_string_get_cstr(file_path))) {
             FURI_LOG_E(TAG, "Error open file %s", furi_string_get_cstr(file_path));
-            result = SubBruteFileResultErrorOpenFile;
+            result = IntercomBruteFileResultErrorOpenFile;
             break;
         }
         if(!flipper_format_read_header(fff_data_file, temp_str, &temp_data32)) {
             FURI_LOG_E(TAG, "Missing or incorrect header");
-            result = SubBruteFileResultMissingOrIncorrectHeader;
+            result = IntercomBruteFileResultMissingOrIncorrectHeader;
             break;
         }
 
@@ -466,18 +466,18 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, FuriString* fil
         if(flipper_format_read_uint32(fff_data_file, "Frequency", &temp_data32, 1)) {
             instance->frequency = temp_data32;
             if(!furi_hal_subghz_is_tx_allowed(instance->frequency)) {
-                result = SubBruteFileResultFrequencyNotAllowed;
+                result = IntercomBruteFileResultFrequencyNotAllowed;
                 break;
             }
         } else {
             FURI_LOG_E(TAG, "Missing or incorrect Frequency");
-            result = SubBruteFileResultMissingOrIncorrectFrequency;
+            result = IntercomBruteFileResultMissingOrIncorrectFrequency;
             break;
         }
         // Preset
         if(!flipper_format_read_string(fff_data_file, "Preset", temp_str)) {
             FURI_LOG_E(TAG, "Preset FAIL");
-            result = SubBruteFileResultPresetInvalid;
+            result = IntercomBruteFileResultPresetInvalid;
         } else {
             instance->preset_name = furi_string_alloc_set(furi_string_get_cstr(temp_str));
         }
@@ -485,7 +485,7 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, FuriString* fil
         // Protocol
         if(!flipper_format_read_string(fff_data_file, "Protocol", temp_str)) {
             FURI_LOG_E(TAG, "Missing Protocol");
-            result = SubBruteFileResultMissingProtocol;
+            result = IntercomBruteFileResultMissingProtocol;
             break;
         } else {
             instance->protocol_name = furi_string_alloc_set(furi_string_get_cstr(temp_str));
@@ -500,13 +500,13 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, FuriString* fil
         if(!instance->decoder_result ||
            strcmp(furi_string_get_cstr(instance->protocol_name), "RAW") == 0) {
             FURI_LOG_E(TAG, "RAW unsupported");
-            result = SubBruteFileResultProtocolNotSupported;
+            result = IntercomBruteFileResultProtocolNotSupported;
             break;
         }
 
         if(instance->decoder_result->protocol->type == SubGhzProtocolTypeDynamic) {
             FURI_LOG_E(TAG, "Protocol is dynamic - not supported");
-            result = SubBruteFileResultDynamicProtocolNotValid;
+            result = IntercomBruteFileResultDynamicProtocolNotValid;
             break;
         }
 #ifdef FURI_DEBUG
@@ -520,19 +520,19 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, FuriString* fil
         //
         //        if(!instance->decoder_result) {
         //            FURI_LOG_E(TAG, "Protocol not found");
-        //            result = SubBruteFileResultProtocolNotFound;
+        //            result = IntercomBruteFileResultProtocolNotFound;
         //            break;
         //        }
 
         // Bit
         if(!flipper_format_read_uint32(fff_data_file, "Bit", &temp_data32, 1)) {
             FURI_LOG_E(TAG, "Missing or incorrect Bit");
-            result = SubBruteFileResultMissingOrIncorrectBit;
+            result = IntercomBruteFileResultMissingOrIncorrectBit;
             break;
         } else {
             if(temp_data32 > 24) {
                 FURI_LOG_E(TAG, "Incorrect Bits, 24 is maximum");
-                result = SubBruteFileResultBigBitSize;
+                result = IntercomBruteFileResultBigBitSize;
                 break;
             }
             instance->bit = temp_data32;
@@ -544,7 +544,7 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, FuriString* fil
         // Key
         if(!flipper_format_read_string(fff_data_file, "Key", temp_str)) {
             FURI_LOG_E(TAG, "Missing or incorrect Key");
-            result = SubBruteFileResultMissingOrIncorrectKey;
+            result = IntercomBruteFileResultMissingOrIncorrectKey;
             break;
         } else {
             snprintf(
@@ -560,7 +560,7 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, FuriString* fil
         // TE
         if(!flipper_format_read_uint32(fff_data_file, "TE", &temp_data32, 1)) {
             FURI_LOG_E(TAG, "Missing or incorrect TE");
-            //result = SubBruteFileResultMissingOrIncorrectTe;
+            //result = IntercomBruteFileResultMissingOrIncorrectTe;
             //break;
         } else {
             instance->te = temp_data32;
@@ -580,7 +580,7 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, FuriString* fil
             instance->repeat = 3;
         }
 
-        result = SubBruteFileResultOk;
+        result = IntercomBruteFileResultOk;
     } while(0);
 
     furi_string_free(temp_str);
@@ -593,7 +593,7 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, FuriString* fil
     instance->decoder_result = NULL;
     instance->receiver = NULL;
 
-    if(result == SubBruteFileResultOk) {
+    if(result == IntercomBruteFileResultOk) {
 #ifdef FURI_DEBUG
         FURI_LOG_D(TAG, "Loaded successfully");
 #endif
@@ -602,12 +602,12 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, FuriString* fil
     return result;
 }
 
-void subbrute_device_attack_set_default_values(
-    SubBruteDevice* instance,
-    SubBruteAttacks default_attack) {
+void intercom_brute_device_attack_set_default_values(
+    IntercomBruteDevice* instance,
+    IntercomBruteAttacks default_attack) {
     furi_assert(instance);
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_device_attack_set_default_values");
+    FURI_LOG_D(TAG, "intercom_brute_device_attack_set_default_values");
 #endif
     instance->attack = default_attack;
     instance->key_index = 0x00;
@@ -617,7 +617,7 @@ void subbrute_device_attack_set_default_values(
     memset(instance->text_store, 0, sizeof(instance->text_store));
     memset(instance->payload, 0, sizeof(instance->payload));
 
-    if(default_attack != SubBruteAttackLoadFile) {
+    if(default_attack != IntercomBruteAttackLoadFile) {
         memset(instance->file_key, 0, sizeof(instance->file_key));
 
         instance->max_value = (uint64_t)0x00;
@@ -638,12 +638,12 @@ void subbrute_device_attack_set_default_values(
     }
 #ifdef FURI_DEBUG
     FURI_LOG_D(
-        TAG, "subbrute_device_attack_set_default_values done. has_tail: %d", instance->has_tail);
+        TAG, "intercom_brute_device_attack_set_default_values done. has_tail: %d", instance->has_tail);
     //furi_delay_ms(250);
 #endif
 }
 
-FuriHalSubGhzPreset subbrute_device_convert_preset(const char* preset_name) {
+FuriHalSubGhzPreset intercom_brute_device_convert_preset(const char* preset_name) {
     FuriString* preset;
     preset = furi_string_alloc_set(preset_name);
     FuriHalSubGhzPreset preset_value;
