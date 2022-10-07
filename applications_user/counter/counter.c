@@ -1,5 +1,4 @@
 #include <furi.h>
-#include <furi-hal.h>
 #include <gui/gui.h>
 
 typedef struct {
@@ -50,6 +49,7 @@ CounterApp* counter_app_alloc() {
 }
 
 int32_t counter_app(void* p) {
+    UNUSED(p);
     CounterApp* app = counter_app_alloc();
 
     while(1) {
