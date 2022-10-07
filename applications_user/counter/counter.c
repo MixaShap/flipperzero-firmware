@@ -27,7 +27,7 @@ void counter_draw_callback(Canvas* canvas, void* ctx) {
     canvas_draw_str(canvas, 2, 10, "Counter");
 
     char string[6];
-    sprintf(string, "%d", app->counter);
+    itoa(app->counter, string, 6);
 
     canvas_set_font(canvas, FontBigNumbers);
     canvas_draw_str(canvas, 53, 38, string);
