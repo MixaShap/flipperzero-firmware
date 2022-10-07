@@ -3,6 +3,8 @@
 #include <input/input.h>
 #include <stdlib.h>
 
+#define TAG "Counter"
+
 
 typedef struct {
     Gui* gui;
@@ -27,7 +29,7 @@ void counter_draw_callback(Canvas* canvas, void* ctx) {
     canvas_draw_str(canvas, 2, 10, "Counter");
 
     char string[6];
-    itoa(app->counter, string, 6);
+    itoa(app->counter, string, 10);
 
     canvas_set_font(canvas, FontBigNumbers);
     canvas_draw_str(canvas, 53, 38, string);
@@ -38,11 +40,11 @@ void counter_draw_callback(Canvas* canvas, void* ctx) {
 
 
 void counter_app_free(CounterApp* app) {
+    view_port_enabled_set(app->view_port, false);
     gui_remove_view_port(app->gui, app->view_port);
+    furi_record_close("gui");
     view_port_free(app->view_port);
     furi_message_queue_free(app->event_queue);
-    furi_record_close("gui");
-    free(app);
 }
 
 
@@ -57,18 +59,26 @@ int32_t counter_app(void* p) {
     view_port_draw_callback_set(app->view_port, counter_draw_callback, app);
     view_port_input_callback_set(app->view_port, counter_input_callback, app->event_queue);
 
-    while(1) {
-        furi_check(furi_message_queue_get(app->event_queue, &app->event, 100) == FuriStatusOk);
-        if(app->event.type == InputTypeLong && app->event.key == InputKeyBack) {
-            break;
+    FURI_LOG_D(TAG, "App init done");
+
+    for(bool processing = true; processing;) {
+        FuriStatus event_status = furi_message_queue_get(app->event_queue, &app->event, 100);
+
+        if(event_status == FuriStatusOk) {
+            // press events
+            if(app->event.type == InputTypeLong && app->event.key == InputKeyBack) {
+                break;
+            }
+            if(app->event.type == InputTypeShort) {
+                app->counter++;
+            }
+            if(app->event.type == InputTypeLong && app->event.key == InputKeyOk) {
+                app->counter = 0;
+            }
+        } else {
+            FURI_LOG_D("Hello_world", "osMessageQueue: event timeout");
+            // event timeout
         }
-        if(app->event.type == InputTypeShort) {
-            app->counter++;
-        }
-        if(app->event.type == InputTypeLong && app->event.key == InputKeyOk) {
-            app->counter = 0;
-        }
-        view_port_update(app->view_port);
     }
 
     counter_app_free(app);
