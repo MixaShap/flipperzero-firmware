@@ -1,6 +1,7 @@
 #include <furi.h>
 #include <gui/gui.h>
 #include <input/input.h>
+#include <stdlib.h>
 
 
 typedef struct {
@@ -16,7 +17,7 @@ static void counter_input_callback(InputEvent* input_event, FuriMessageQueue* ev
     furi_assert(event_queue);
 
 //    PluginEvent event = {.type = EventTypeKey, .input = *input_event};
-furi_message_queue_put(event_queue, input_event, 0);
+    furi_message_queue_put(event_queue, input_event, 0);
 }
 
 
@@ -48,7 +49,7 @@ void counter_app_free(CounterApp* app) {
 int32_t counter_app(void* p) {
     UNUSED(p);
 
-    CounterApp* app = furi_alloc(sizeof(CounterApp));
+    CounterApp* app = malloc(sizeof(CounterApp));
     app->view_port = view_port_alloc();
     app->gui = furi_record_open("gui");
     app->event_queue = furi_message_queue_alloc(8, sizeof(InputEvent));
