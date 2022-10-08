@@ -1,7 +1,0 @@
-ADD_SCENE(intercom_brute, load_file, LoadFile)
-ADD_SCENE(intercom_brute, load_select, LoadSelect)
-ADD_SCENE(intercom_brute, run_attack, RunAttack)
-ADD_SCENE(intercom_brute, save_name, SaveName)
-ADD_SCENE(intercom_brute, save_success, SaveSuccess)
-ADD_SCENE(intercom_brute, setup_attack, SetupAttack)
-ADD_SCENE(intercom_brute, start, Start)
