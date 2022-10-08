@@ -41,7 +41,10 @@ static void render_callback(Canvas* canvas, void* ctx) {
     char mood_str[32];
     uint8_t mood = 0;
 
-    if(stats->butthurt <= 4) {
+    if(stats->butthurt <= 2) {
+        mood = 0;
+        snprintf(mood_str, 20, "Mood: Awesome");
+    } else if(stats->butthurt <= 4) {
         mood = 0;
         snprintf(mood_str, 20, "Mood: Happy");
     } else if(stats->butthurt <= 9) {

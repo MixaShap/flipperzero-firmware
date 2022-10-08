@@ -1,0 +1,11 @@
+App(
+    appid="counter",
+    name="Counter",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="counter_app",
+    requires=["gui"],
+    stack_size=1 * 1024,
+    order=2,
+    fap_icon="counter_10px.png",
+    fap_category="Development",
+)
